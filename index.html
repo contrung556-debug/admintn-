@@ -173,20 +173,17 @@
             return;
         }
 
-        const { data, error } = await _supabase.from('shopee_users').select('balance').eq('username', target).single();
-        if (error || !data) {
-            alert("Không tìm thấy khách hàng này!");
+        const { data, error } = await _supabase.rpc('admin_cong_tien', {
+            p_target_username: target,
+            p_amount: amount
+        });
+
+        if (error || (data && !data.success)) {
+            alert("Lỗi cập nhật: " + (error?.message || data?.message || "Không xác định"));
             return;
         }
 
-        let newBal = (data.balance || 0) + amount;
-        const { error: updateErr } = await _supabase.from('shopee_users').update({ balance: newBal }).eq('username', target);
-        if (updateErr) {
-            alert("Lỗi cập nhật: " + updateErr.message);
-            return;
-        }
-
-        alert(`Đã cập nhật số dư cho @${target}. Số dư mới: ${newBal.toLocaleString('vi-VN')}đ`);
+        alert(`Đã cập nhật số dư cho @${target}. Số dư mới: ${data.new_balance.toLocaleString('vi-VN')}đ`);
         document.getElementById("targetUsername").value = "";
         document.getElementById("balanceAmount").value = "";
         loadMemberList();
