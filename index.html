@@ -45,12 +45,12 @@
 
 <div class="container">
 
-    <!-- Form Đăng Nhập Admin -->
+    <!-- Form Đăng Nhập Admin (Supabase Auth) -->
     <div class="section-box" id="adminLoginBox">
-        <div class="section-title">🔐 Đăng Nhập Quản Trị</div>
-        <input type="text" id="adminUser" placeholder="Tài khoản Admin...">
+        <div class="section-title">🔐 Đăng Nhập Quản Trị (Supabase Auth)</div>
+        <input type="email" id="adminEmail" placeholder="Email Admin (VD: admin@shopeemmo.com)...">
         <input type="password" id="adminPass" placeholder="Mật khẩu Admin...">
-        <button class="btn-main" onclick="loginAdmin()">Đăng Nhập</button>
+        <button class="btn-main" onclick="loginAdminAuth()">Đăng Nhập</button>
     </div>
 
     <!-- Khu vực Dashboard Admin -->
@@ -100,23 +100,49 @@
 
     let cachedMembers = [];
 
-    if (localStorage.getItem("mmo_admin_logged") === "true") {
-        showAdminPanel();
-    }
+    // Tự động kiểm tra session đăng nhập khi load trang
+    checkAdminSession();
 
-    function loginAdmin() {
-        let u = document.getElementById("adminUser").value.trim();
-        let p = document.getElementById("adminPass").value.trim();
-        if (u === "Cuong123" && p === "cuong1") {
-            localStorage.setItem("mmo_admin_logged", "true");
+    async function checkAdminSession() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session && session.user) {
             showAdminPanel();
         } else {
-            alert("Sai tài khoản hoặc mật khẩu Admin!");
+            logoutAdminUI();
         }
     }
 
-    function logoutAdmin() {
-        localStorage.removeItem("mmo_admin_logged");
+    async function loginAdminAuth() {
+        let email = document.getElementById("adminEmail").value.trim();
+        let pass = document.getElementById("adminPass").value.trim();
+
+        if (!email || !pass) {
+            alert("Vui lòng nhập đầy đủ Email và Mật khẩu!");
+            return;
+        }
+
+        const { data, error } = await _supabase.auth.signInWithPassword({
+            email: email,
+            password: pass
+        });
+
+        if (error) {
+            alert("Đăng nhập thất bại: " + error.message);
+            return;
+        }
+
+        if (data.session) {
+            alert("Đăng nhập quản trị thành công!");
+            showAdminPanel();
+        }
+    }
+
+    async function logoutAdmin() {
+        await _supabase.auth.signOut();
+        logoutAdminUI();
+    }
+
+    function logoutAdminUI() {
         document.getElementById("adminLoginBox").style.display = "block";
         document.getElementById("adminDashboard").style.display = "none";
         document.getElementById("btnLogoutAdmin").style.display = "none";
@@ -137,7 +163,7 @@
         let rawAccs = document.getElementById("postAccounts").value.trim();
 
         if (!price || !rawAccs) {
-            alert("Vui lòng nhập giá và danh sách tài khoản!");
+            alert("Vuint lòng nhập giá và danh sách tài khoản!");
             return;
         }
 
@@ -147,7 +173,8 @@
             price: price,
             account_details: accLine,
             description: desc,
-            status: 'Đang bán'
+            status: 'Đang bán',
+            updated_at: new Date().toISOString()
         }));
 
         const { error } = await _supabase.from('mmo_accounts').insert(insertRows);
@@ -194,7 +221,7 @@
         if (input === null || input.trim() === "") return;
         let amount = parseInt(input);
         if (isNaN(amount)) {
-            alert("Vui lòng nhập một số hợp lệ!");
+            alert("Vuint lòng nhập một số hợp lệ!");
             return;
         }
         adjustUserBalance(username, amount);
