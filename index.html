@@ -23,9 +23,16 @@
         .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.3); }
         .btn-main:hover { background-color: #c0392b; }
         .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
-        .btn-green:hover { background-color: #1e8449 !important; }
 
-        .member-card { background: #fff8f5; border: 1px solid #faddd3; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        /* Style thẻ thành viên mới */
+        .member-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s; }
+        .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
+        .member-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .member-user { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
+        .member-pass { background: #334155; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-family: monospace; }
+        .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+        .member-stats { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
+        .member-action-hint { font-size: 11px; color: #e67e22; text-align: right; margin-top: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -48,7 +55,7 @@
         <button class="btn-main" onclick="loginAdmin()">Đăng Nhập</button>
     </div>
 
-    <!-- Khu vực Dashboard Admin (Ẩn khi chưa login) -->
+    <!-- Khu vực Dashboard Admin -->
     <div id="adminDashboard" style="display: none;">
 
         <!-- 1. Đăng Bán Tài Khoản Mới -->
@@ -78,9 +85,10 @@
 
         <!-- 3. Danh Sách Thành Viên -->
         <div class="section-box">
-            <div class="section-title">👥 Danh Sách Thành Viên</div>
-            <button class="btn-main" style="background:#3498db; margin-bottom:10px;" onclick="loadMemberList()">Tải / Làm Mới Danh Sách</button>
-            <div id="memberListContainer">Chưa tải danh sách...</div>
+            <div class="section-title">👥 [Admin] Danh Sách Thành Viên & Chi Tiêu</div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Mẹo: Nhấn trực tiếp vào thẻ của thành viên bất kỳ để cộng/trừ số dư nhanh chóng.</div>
+            <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
+            <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
 
     </div>
@@ -92,7 +100,8 @@
     const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Kiểm tra trạng thái đăng nhập admin
+    let cachedMembers = [];
+
     if (localStorage.getItem("mmo_admin_logged") === "true") {
         showAdminPanel();
     }
@@ -100,7 +109,6 @@
     function loginAdmin() {
         let u = document.getElementById("adminUser").value.trim();
         let p = document.getElementById("adminPass").value.trim();
-        // Bạn có thể đổi lại user/pass admin ở đây
         if (u === "Cuong123" && p === "cuong1") {
             localStorage.setItem("mmo_admin_logged", "true");
             showAdminPanel();
@@ -150,7 +158,6 @@
             return;
         }
 
-        // Lưu metadata title/desc theo cặp platform_price vào localStorage để trang index hiển thị
         let metaMap = JSON.parse(localStorage.getItem("mmo_meta_info") || "{}");
         metaMap[`${platform}_${price}`] = { title: title || `Tài khoản ${platform}`, description: desc };
         localStorage.setItem("mmo_meta_info", JSON.stringify(metaMap));
@@ -159,9 +166,9 @@
         document.getElementById("postAccounts").value = "";
     }
 
-    async function adjustUserBalance() {
-        let target = document.getElementById("targetUsername").value.trim();
-        let amount = parseInt(document.getElementById("balanceAmount").value);
+    async function adjustUserBalance(specificUser = null, specificAmount = null) {
+        let target = specificUser || document.getElementById("targetUsername").value.trim();
+        let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
 
         if (!target || isNaN(amount)) {
             alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ!");
@@ -187,24 +194,75 @@
         loadMemberList();
     }
 
+    function quickAdjustUser(username) {
+        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${username} (Nhập số âm nếu muốn trừ, ví dụ: 50000 hoặc -20000):`);
+        if (input === null || input.trim() === "") return;
+        let amount = parseInt(input);
+        if (isNaN(amount)) {
+            alert("Vui lòng nhập một số hợp lệ!");
+            return;
+        }
+        adjustUserBalance(username, amount);
+    }
+
     async function loadMemberList() {
-        const { data, error } = await _supabase.from('shopee_users').select('id, username, balance').order('id', { ascending: false });
+        const { data: users, error } = await _supabase.from('shopee_users').select('*').order('id', { ascending: false });
+        if (error) {
+            document.getElementById("memberListContainer").innerHTML = "Lỗi tải danh sách thành viên.";
+            return;
+        }
+
+        // Lấy lịch sử mua hàng để tính tổng chi tiêu của từng user
+        const { data: purchases } = await _supabase.from('mmo_accounts').select('buyer_username, price').not('buyer_username', 'is', null);
+        let spendMap = {};
+        if (purchases) {
+            purchases.forEach(item => {
+                if (item.buyer_username) {
+                    spendMap[item.buyer_username] = (spendMap[item.buyer_username] || 0) + (item.price || 0);
+                }
+            });
+        }
+
+        cachedMembers = (users || []).map(u => ({
+            ...u,
+            totalSpend: spendMap[u.username] || 0
+        }));
+
+        renderMembers(cachedMembers);
+    }
+
+    function renderMembers(list) {
         let container = document.getElementById("memberListContainer");
-        if (error || !data || data.length === 0) {
+        if (!list || list.length === 0) {
             container.innerHTML = "Chưa có thành viên nào.";
             return;
         }
 
         let html = '';
-        data.forEach(u => {
+        list.forEach(u => {
+            let regTime = u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : 'Không rõ';
             html += `
-                <div class="member-card">
-                    <div><b>@${u.username}</b></div>
-                    <div>Số dư: <b style="color: #ee4d2d;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+                <div class="member-card" onclick="quickAdjustUser('${u.username}')">
+                    <div class="member-top">
+                        <div class="member-user">👤 @${u.username}</div>
+                        <div class="member-pass">MK: ${u.password || '******'}</div>
+                    </div>
+                    <div class="member-time">⏱️ Ngày đăng ký: ${regTime}</div>
+                    <div class="member-stats">
+                        <div>💵 Số dư ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+                        <div>🛍️ Đã chi tiêu: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
+                    </div>
+                    <div class="member-action-hint">⚡ Nhấn vào đây để cộng/trừ số dư</div>
                 </div>
             `;
         });
         container.innerHTML = html;
+    }
+
+    function filterMembers() {
+        let kw = document.getElementById("searchMemberInput").value.toLowerCase().trim();
+        let filtered = cachedMembers.filter(u => u.username && u.username.toLowerCase().includes(kw));
+        renderMembers(filtered);
     }
 </script>
 
