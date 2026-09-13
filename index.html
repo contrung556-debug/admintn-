@@ -23,6 +23,7 @@
         .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.3); }
         .btn-main:hover { background-color: #c0392b; }
         .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
+        .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.3); }
 
         .member-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s; }
         .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
@@ -56,9 +57,15 @@
     <!-- Khu vực Dashboard Admin -->
     <div id="adminDashboard" style="display: none;">
 
-        <!-- 1. Đăng Bán Tài Khoản Mới -->
+        <!-- 1. Đăng Bán Tài Khoản Mới + Lưu Mẫu Database -->
         <div class="section-box">
             <div class="section-title">➕ Đăng Bán Tài Khoản Mới</div>
+            
+            <!-- Chọn mẫu có sẵn từ Database -->
+            <select id="templateSelector" onchange="applyTemplate()" style="background: #eef2f7; font-weight: bold; color: #2c3e50;">
+                <option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>
+            </select>
+
             <select id="postPlatform">
                 <option value="Shopee">Shopee</option>
                 <option value="Facebook">Facebook</option>
@@ -70,7 +77,11 @@
             <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (Ví dụ: Shopee cổ đã ngâm)...">
             <textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea>
             <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
-            <button class="btn-main" onclick="postNewAccounts()">Đăng Bán Lên Kho</button>
+            
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts()">Đăng Bán Lên Kho</button>
+                <button class="btn-main btn-dark" style="flex: 1; margin-bottom: 0;" onclick="saveCurrentAsTemplate()">💾 Lưu Mẫu</button>
+            </div>
         </div>
 
         <!-- 2. Cộng / Trừ Số Dư Thành Viên -->
@@ -99,6 +110,7 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let cachedMembers = [];
+    let cachedTemplates = [];
 
     // Tự động kiểm tra session đăng nhập khi load trang
     checkAdminSession();
@@ -153,6 +165,7 @@
         document.getElementById("adminDashboard").style.display = "block";
         document.getElementById("btnLogoutAdmin").style.display = "inline-block";
         loadMemberList();
+        loadTemplates();
     }
 
     async function postNewAccounts() {
@@ -183,12 +196,74 @@
             return;
         }
 
-        let metaMap = JSON.parse(localStorage.getItem("mmo_meta_info") || "{}");
-        metaMap[`${platform}_${price}`] = { title: title || `Tài khoản ${platform}`, description: desc };
-        localStorage.setItem("mmo_meta_info", JSON.stringify(metaMap));
-
         alert(`Đã đăng thành công ${insertRows.length} tài khoản lên kho!`);
         document.getElementById("postAccounts").value = "";
+    }
+
+    async function saveCurrentAsTemplate() {
+        let platform = document.getElementById("postPlatform").value;
+        let price = parseInt(document.getElementById("postPrice").value) || 0;
+        let title = document.getElementById("postTitle").value.trim();
+        let desc = document.getElementById("postDesc").value.trim();
+
+        if (!title && !desc) {
+            alert("Vui lòng nhập ít nhất Tiêu đề hoặc Mô tả để lưu mẫu!");
+            return;
+        }
+
+        let templateName = title || `${platform} (${price}đ)`;
+
+        const { error } = await _supabase.from('post_templates').insert([
+            {
+                name: templateName,
+                platform: platform,
+                price: price,
+                title: title,
+                description: desc
+            }
+        ]);
+
+        if (error) {
+            alert("Lỗi khi lưu mẫu: " + error.message);
+            return;
+        }
+
+        alert(`Đã lưu mẫu "${templateName}" vào database thành công!`);
+        loadTemplates();
+    }
+
+    async function loadTemplates() {
+        const { data, error } = await _supabase.from('post_templates').select('*').order('created_at', { ascending: false });
+        if (error) {
+            console.error("Lỗi tải mẫu:", error.message);
+            return;
+        }
+
+        cachedTemplates = data || [];
+        let selectEl = document.getElementById("templateSelector");
+        if (!selectEl) return;
+
+        selectEl.innerHTML = '<option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>';
+        cachedTemplates.forEach((t) => {
+            let opt = document.createElement("option");
+            opt.value = t.id;
+            opt.textContent = `📌 ${t.name} (${t.platform} - ${t.price}đ)`;
+            selectEl.appendChild(opt);
+        });
+    }
+
+    function applyTemplate() {
+        let selectEl = document.getElementById("templateSelector");
+        let templateId = selectEl.value;
+        if (!templateId) return;
+
+        let t = cachedTemplates.find(item => item.id === templateId);
+        if (!t) return;
+
+        document.getElementById("postPlatform").value = t.platform || "Shopee";
+        document.getElementById("postPrice").value = t.price || "";
+        document.getElementById("postTitle").value = t.title || "";
+        document.getElementById("postDesc").value = t.description || "";
     }
 
     async function adjustUserBalance(specificUser = null, specificAmount = null) {
