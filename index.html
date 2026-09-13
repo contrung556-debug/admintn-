@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee MMO - Khu Vực Quản Trị Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
+        
+        .store-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 12px 15px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
+        .store-name { font-size: 16px; font-weight: bold; }
+        .top-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 12px; }
+        
+        .section-box { background: #fff; padding: 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #ddd; }
+        .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 13px; background: #fafafa; }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.3); }
+        .btn-main:hover { background-color: #c0392b; }
+        .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
+        .btn-green:hover { background-color: #1e8449 !important; }
+
+        .member-card { background: #fff8f5; border: 1px solid #faddd3; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="store-header">
+    <div class="store-name">⚡ ADMIN QUẢN TRỊ MMO</div>
+    <div>
+        <a href="index.html" class="top-btn" style="background:#ee4d2d;">← Về Trang Khách</a>
+        <button class="top-btn" id="btnLogoutAdmin" style="display:none; background:#c0392b;" onclick="logoutAdmin()">Thoát</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Form Đăng Nhập Admin -->
+    <div class="section-box" id="adminLoginBox">
+        <div class="section-title">🔐 Đăng Nhập Quản Trị</div>
+        <input type="text" id="adminUser" placeholder="Tài khoản Admin...">
+        <input type="password" id="adminPass" placeholder="Mật khẩu Admin...">
+        <button class="btn-main" onclick="loginAdmin()">Đăng Nhập</button>
+    </div>
+
+    <!-- Khu vực Dashboard Admin (Ẩn khi chưa login) -->
+    <div id="adminDashboard" style="display: none;">
+
+        <!-- 1. Đăng Bán Tài Khoản Mới -->
+        <div class="section-box">
+            <div class="section-title">➕ Đăng Bán Tài Khoản Mới</div>
+            <select id="postPlatform">
+                <option value="Shopee">Shopee</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Gmail">Gmail</option>
+                <option value="iCloud">iCloud</option>
+                <option value="TikTok">TikTok</option>
+            </select>
+            <input type="number" id="postPrice" placeholder="Giá tiền mỗi tài khoản (VNĐ)...">
+            <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (Ví dụ: Shopee cổ đã ngâm)...">
+            <textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea>
+            <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
+            <button class="btn-main" onclick="postNewAccounts()">Đăng Bán Lên Kho</button>
+        </div>
+
+        <!-- 2. Cộng / Trừ Số Dư Thành Viên -->
+        <div class="section-box">
+            <div class="section-title">💰 Cộng / Trừ Số Dư Ví Khách</div>
+            <input type="text" id="targetUsername" placeholder="Nhập Username của khách...">
+            <input type="number" id="balanceAmount" placeholder="Số tiền cộng (nhập số âm nếu trừ, ví dụ: 50000 hoặc -20000)...">
+            <button class="btn-main btn-green" onclick="adjustUserBalance()">Cập Nhật Số Dư</button>
+        </div>
+
+        <!-- 3. Danh Sách Thành Viên -->
+        <div class="section-box">
+            <div class="section-title">👥 Danh Sách Thành Viên</div>
+            <button class="btn-main" style="background:#3498db; margin-bottom:10px;" onclick="loadMemberList()">Tải / Làm Mới Danh Sách</button>
+            <div id="memberListContainer">Chưa tải danh sách...</div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const SUPABASE_URL = "https://hsdbjzkxbdezysxwwtaw.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Kiểm tra trạng thái đăng nhập admin
+    if (localStorage.getItem("mmo_admin_logged") === "true") {
+        showAdminPanel();
+    }
+
+    function loginAdmin() {
+        let u = document.getElementById("adminUser").value.trim();
+        let p = document.getElementById("adminPass").value.trim();
+        // Bạn có thể đổi lại user/pass admin ở đây
+        if (u === "Cuong123" && p === "cuong1") {
+            localStorage.setItem("mmo_admin_logged", "true");
+            showAdminPanel();
+        } else {
+            alert("Sai tài khoản hoặc mật khẩu Admin!");
+        }
+    }
+
+    function logoutAdmin() {
+        localStorage.removeItem("mmo_admin_logged");
+        document.getElementById("adminLoginBox").style.display = "block";
+        document.getElementById("adminDashboard").style.display = "none";
+        document.getElementById("btnLogoutAdmin").style.display = "none";
+    }
+
+    function showAdminPanel() {
+        document.getElementById("adminLoginBox").style.display = "none";
+        document.getElementById("adminDashboard").style.display = "block";
+        document.getElementById("btnLogoutAdmin").style.display = "inline-block";
+        loadMemberList();
+    }
+
+    async function postNewAccounts() {
+        let platform = document.getElementById("postPlatform").value;
+        let price = parseInt(document.getElementById("postPrice").value);
+        let title = document.getElementById("postTitle").value.trim();
+        let desc = document.getElementById("postDesc").value.trim();
+        let rawAccs = document.getElementById("postAccounts").value.trim();
+
+        if (!price || !rawAccs) {
+            alert("Vui lòng nhập giá và danh sách tài khoản!");
+            return;
+        }
+
+        let lines = rawAccs.split('\n').map(l => l.trim()).filter(Boolean);
+        let insertRows = lines.map(accLine => ({
+            platform: platform,
+            price: price,
+            account_details: accLine,
+            description: desc,
+            status: 'Đang bán'
+        }));
+
+        const { error } = await _supabase.from('mmo_accounts').insert(insertRows);
+        if (error) {
+            alert("Lỗi khi đăng bài: " + error.message);
+            return;
+        }
+
+        // Lưu metadata title/desc theo cặp platform_price vào localStorage để trang index hiển thị
+        let metaMap = JSON.parse(localStorage.getItem("mmo_meta_info") || "{}");
+        metaMap[`${platform}_${price}`] = { title: title || `Tài khoản ${platform}`, description: desc };
+        localStorage.setItem("mmo_meta_info", JSON.stringify(metaMap));
+
+        alert(`Đã đăng thành công ${insertRows.length} tài khoản lên kho!`);
+        document.getElementById("postAccounts").value = "";
+    }
+
+    async function adjustUserBalance() {
+        let target = document.getElementById("targetUsername").value.trim();
+        let amount = parseInt(document.getElementById("balanceAmount").value);
+
+        if (!target || isNaN(amount)) {
+            alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ!");
+            return;
+        }
+
+        const { data, error } = await _supabase.from('shopee_users').select('balance').eq('username', target).single();
+        if (error || !data) {
+            alert("Không tìm thấy khách hàng này!");
+            return;
+        }
+
+        let newBal = (data.balance || 0) + amount;
+        const { error: updateErr } = await _supabase.from('shopee_users').update({ balance: newBal }).eq('username', target);
+        if (updateErr) {
+            alert("Lỗi cập nhật: " + updateErr.message);
+            return;
+        }
+
+        alert(`Đã cập nhật số dư cho @${target}. Số dư mới: ${newBal.toLocaleString('vi-VN')}đ`);
+        document.getElementById("targetUsername").value = "";
+        document.getElementById("balanceAmount").value = "";
+        loadMemberList();
+    }
+
+    async function loadMemberList() {
+        const { data, error } = await _supabase.from('shopee_users').select('id, username, balance').order('id', { ascending: false });
+        let container = document.getElementById("memberListContainer");
+        if (error || !data || data.length === 0) {
+            container.innerHTML = "Chưa có thành viên nào.";
+            return;
+        }
+
+        let html = '';
+        data.forEach(u => {
+            html += `
+                <div class="member-card">
+                    <div><b>@${u.username}</b></div>
+                    <div>Số dư: <b style="color: #ee4d2d;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
