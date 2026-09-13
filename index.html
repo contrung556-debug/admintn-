@@ -163,7 +163,7 @@
         let rawAccs = document.getElementById("postAccounts").value.trim();
 
         if (!price || !rawAccs) {
-            alert("Vuint lòng nhập giá và danh sách tài khoản!");
+            alert("Vui lòng nhập giá và danh sách tài khoản!");
             return;
         }
 
@@ -221,14 +221,14 @@
         if (input === null || input.trim() === "") return;
         let amount = parseInt(input);
         if (isNaN(amount)) {
-            alert("Vuint lòng nhập một số hợp lệ!");
+            alert("Vui lòng nhập một số hợp lệ!");
             return;
         }
         adjustUserBalance(username, amount);
     }
 
     async function loadMemberList() {
-        const { data: users, error } = await _supabase.from('shopee_users').select('*').order('id', { ascending: false });
+        const { data: users, error } = await _supabase.from('members').select('*').order('created_at', { ascending: false });
         if (error) {
             document.getElementById("memberListContainer").innerHTML = "Lỗi tải danh sách thành viên.";
             return;
