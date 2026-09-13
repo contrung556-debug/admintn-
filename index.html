@@ -1,3 +1,4 @@
+Dưới đây là toàn bộ mã nguồn file quản trị đã được bỏ hoàn toàn phần mật khẩu ra khỏi thẻ thành viên:
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -24,12 +25,10 @@
         .btn-main:hover { background-color: #c0392b; }
         .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
 
-        /* Style thẻ thành viên mới */
         .member-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s; }
         .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
         .member-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .member-user { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
-        .member-pass { background: #334155; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-family: monospace; }
         .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
         .member-stats { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
         .member-action-hint { font-size: 11px; color: #e67e22; text-align: right; margin-top: 4px; font-weight: bold; }
@@ -212,7 +211,6 @@
             return;
         }
 
-        // Lấy lịch sử mua hàng để tính tổng chi tiêu của từng user
         const { data: purchases } = await _supabase.from('mmo_accounts').select('buyer_username, price').not('buyer_username', 'is', null);
         let spendMap = {};
         if (purchases) {
@@ -245,7 +243,6 @@
                 <div class="member-card" onclick="quickAdjustUser('${u.username}')">
                     <div class="member-top">
                         <div class="member-user">👤 @${u.username}</div>
-                        <div class="member-pass">MK: ${u.password || '******'}</div>
                     </div>
                     <div class="member-time">⏱️ Ngày đăng ký: ${regTime}</div>
                     <div class="member-stats">
@@ -268,3 +265,4 @@
 
 </body>
 </html>
+
