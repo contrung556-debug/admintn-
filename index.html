@@ -79,7 +79,7 @@
             <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
             
             <div style="display: flex; gap: 8px;">
-                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts()">Đăng Bán Lên Kho</button>
+                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts(event)">Đăng Bán Lên Kho</button>
                 <button class="btn-main btn-dark" style="flex: 1; margin-bottom: 0;" onclick="saveCurrentAsTemplate()">💾 Lưu Mẫu</button>
             </div>
         </div>
@@ -168,35 +168,47 @@
         loadTemplates();
     }
 
-    async function postNewAccounts() {
+    async function postNewAccounts(event) {
         let platform = document.getElementById("postPlatform").value;
         let price = parseInt(document.getElementById("postPrice").value);
         let title = document.getElementById("postTitle").value.trim();
         let desc = document.getElementById("postDesc").value.trim();
         let rawAccs = document.getElementById("postAccounts").value.trim();
 
-        if (!price || !rawAccs) {
-            alert("Vui lòng nhập giá và danh sách tài khoản!");
+        if (isNaN(price) || price < 0 || !rawAccs) {
+            alert("Vui lòng nhập giá hợp lệ và danh sách tài khoản!");
             return;
         }
 
         let lines = rawAccs.split('\n').map(l => l.trim()).filter(Boolean);
-        let insertRows = lines.map(accLine => ({
-            platform: platform,
-            price: price,
-            account_details: accLine,
-            description: desc,
-            status: 'Đang bán',
-            updated_at: new Date().toISOString()
-        }));
-
-        const { error } = await _supabase.from('mmo_accounts').insert(insertRows);
-        if (error) {
-            alert("Lỗi khi đăng bài: " + error.message);
+        if (lines.length === 0) {
+            alert("Danh sách tài khoản trống!");
             return;
         }
 
-        alert(`Đã đăng thành công ${insertRows.length} tài khoản lên kho!`);
+        let btnEl = event.target;
+        let oldText = btnEl.innerText;
+        btnEl.disabled = true;
+        btnEl.innerText = "⏳ Đang mã hóa & đăng bán...";
+
+        // Gọi hàm RPC bảo mật trên Database để tự động mã hóa tài khoản
+        const { data, error } = await _supabase.rpc('dang_ban_tai_khoan', {
+            p_platform: platform,
+            p_price: price,
+            p_title: title || `${platform} tài khoản`,
+            p_description: desc || 'Không có mô tả.',
+            p_details_array: lines
+        });
+
+        btnEl.disabled = false;
+        btnEl.innerText = oldText;
+
+        if (error || (data && !data.success)) {
+            alert("Lỗi khi đăng bài: " + (error?.message || data?.message || "Không xác định"));
+            return;
+        }
+
+        alert(`Đã đăng thành công ${lines.length} tài khoản lên kho (Đã mã hóa an toàn)!`);
         document.getElementById("postAccounts").value = "";
     }
 
