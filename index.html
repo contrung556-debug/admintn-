@@ -6,33 +6,34 @@
     <title>Shopee MMO - Khu Vực Quản Trị Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; font-size: 14px; }
         
-        .store-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 12px 15px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
-        .store-name { font-size: 16px; font-weight: bold; }
-        .top-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .store-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 12px 15px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
+        .store-name { font-size: 15px; font-weight: bold; }
+        .top-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
 
-        .container { max-width: 600px; margin: 0 auto; padding: 12px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
         
-        .section-box { background: #fff; padding: 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #ddd; }
+        .section-box { background: #fff; padding: 14px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e1e8ed; }
         .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 13px; background: #fafafa; }
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fafafa; -webkit-appearance: none; }
         textarea { resize: vertical; min-height: 80px; }
         
-        .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.3); }
-        .btn-main:hover { background-color: #c0392b; }
-        .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
-        .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.3); }
+        .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.2); }
+        .btn-main:active { opacity: 0.8; }
+        .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.2); }
+        .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.2); }
         .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
 
-        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.2s; }
+        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; }
         .member-card { cursor: pointer; }
         .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
         .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
-        .member-time, .product-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
-        .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
+        .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+        .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; flex-wrap: wrap; gap: 6px; }
         .member-action-hint { font-size: 11px; color: #e67e22; text-align: right; margin-top: 4px; font-weight: bold; }
 
         .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
@@ -40,10 +41,9 @@
         .badge-red { background: #e74c3c; }
         .badge-blue { background: #2980b9; }
 
-        /* Modal Chỉnh Sửa */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background: #fff; padding: 18px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .sub-acc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 11px; }
+        .modal-content { background: #fff; padding: 15px; border-radius: 12px; width: 92%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .sub-acc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -51,7 +51,7 @@
 <div class="store-header">
     <div class="store-name">⚡ ADMIN QUẢN TRỊ MMO</div>
     <div>
-        <a href="index.html" class="top-btn" style="background:#ee4d2d;">← Về Trang Khách</a>
+        <a href="index.html" class="top-btn" style="background:#ee4d2d;">← Trang Khách</a>
         <button class="top-btn" id="btnLogoutAdmin" style="display:none; background:#c0392b;" onclick="logoutAdmin()">Thoát</button>
     </div>
 </div>
@@ -61,7 +61,7 @@
     <!-- Form Đăng Nhập Admin -->
     <div class="section-box" id="adminLoginBox">
         <div class="section-title">🔐 Đăng Nhập Quản Trị (Supabase Auth)</div>
-        <input type="email" id="adminEmail" placeholder="Email Admin (VD: admin@shopeemmo.com)...">
+        <input type="email" id="adminEmail" placeholder="Email Admin...">
         <input type="password" id="adminPass" placeholder="Mật khẩu Admin...">
         <button class="btn-main" onclick="loginAdminAuth()">Đăng Nhập</button>
     </div>
@@ -85,7 +85,7 @@
                 <option value="TikTok">TikTok</option>
             </select>
             <input type="number" id="postPrice" placeholder="Giá tiền mỗi tài khoản (VNĐ)...">
-            <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (Ví dụ: Shopee cổ đã ngâm)...">
+            <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (VD: Shopee cổ đã ngâm)...">
             <textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea>
             <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
             
@@ -95,17 +95,20 @@
             </div>
         </div>
 
-        <!-- 2. Quản Lý Sản Phẩm (ĐÃ GOM NHÓM SẢN PHẨM CÙNG LOẠI) -->
+        <!-- 2. Quản Lý Sản Phẩm (Gom Nhóm) -->
         <div class="section-box">
             <div class="section-title">
-                <span>📦 Quản Lý Sản Phẩm (Đã Gom Nhóm)</span>
-                <button class="top-btn" style="background:#34495e;" onclick="loadProductsList()">🔄 Tải lại</button>
+                <span>📦 Quản Lý Sản Phẩm</span>
+                <div>
+                    <button class="top-btn" style="background:#c0392b; margin-right:4px;" onclick="clearSoldAccounts()">🧹 Xóa Acc Đã Bán</button>
+                    <button class="top-btn" style="background:#34495e;" onclick="loadProductsList()">🔄 Tải lại</button>
+                </div>
             </div>
             
             <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                <input type="text" id="searchProductInput" placeholder="🔍 Tìm theo tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
+                <input type="text" id="searchProductInput" placeholder="🔍 Tìm tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
                 <select id="filterPlatform" onchange="filterProducts()" style="margin-bottom:0; flex:1;">
-                    <option value="">Tất cả Nền tảng</option>
+                    <option value="">Tất cả</option>
                     <option value="Shopee">Shopee</option>
                     <option value="Facebook">Facebook</option>
                     <option value="Gmail">Gmail</option>
@@ -121,14 +124,14 @@
         <div class="section-box">
             <div class="section-title"><span>💰 Cộng / Trừ Số Dư Ví Khách</span></div>
             <input type="text" id="targetUsername" placeholder="Nhập Username của khách...">
-            <input type="number" id="balanceAmount" placeholder="Số tiền cộng (nhập số âm nếu trừ, ví dụ: 50000 hoặc -20000)...">
+            <input type="number" id="balanceAmount" placeholder="Số tiền (VD: 50000 hoặc -20000)...">
             <button class="btn-main btn-green" onclick="adjustUserBalance()">Cập Nhật Số Dư</button>
         </div>
 
         <!-- 4. Danh Sách Thành Viên -->
         <div class="section-box">
-            <div class="section-title"><span>👥 [Admin] Danh Sách Thành Viên & Chi Tiêu</span></div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Mẹo: Nhấn trực tiếp vào thẻ của thành viên bất kỳ để cộng/trừ số dư nhanh chóng.</div>
+            <div class="section-title"><span>👥 Danh Sách Thành Viên & Chi Tiêu</span></div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của khách để cộng/trừ nhanh số dư.</div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
@@ -142,7 +145,7 @@
     <div class="modal-content">
         <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
             <span>✏️ Sửa Sản Phẩm Nhóm</span>
-            <span onclick="closeModal('editProductModal')" style="cursor:pointer; font-size: 18px; color:#888;">&times;</span>
+            <span onclick="closeModal('editProductModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
         </div>
         <input type="hidden" id="editGroupKey">
         <label style="font-size: 11px; font-weight: bold;">Nền tảng:</label>
@@ -162,9 +165,12 @@
         
         <label style="font-size: 11px; font-weight: bold;">Mô tả sản phẩm:</label>
         <textarea id="editDesc" placeholder="Nhập mô tả..."></textarea>
+
+        <label style="font-size: 11px; font-weight: bold; color: #27ae60;">➕ Nhập thêm tài khoản vào nhóm này (Mỗi dòng 1 acc):</label>
+        <textarea id="addMoreAccounts" placeholder="user|pass|ghi_chú..."></textarea>
         
         <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveGroupEdit()">💾 Cập Nhật Tất Cả Acc Cùng Loại</button>
+            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveGroupEdit()">💾 Cập Nhật Tất Cả</button>
             <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('editProductModal')">Hủy</button>
         </div>
     </div>
@@ -175,7 +181,7 @@
     <div class="modal-content">
         <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
             <span id="viewAccsTitle">📋 Danh Sách Tài Khoản</span>
-            <span onclick="closeModal('viewAccsModal')" style="cursor:pointer; font-size: 18px; color:#888;">&times;</span>
+            <span onclick="closeModal('viewAccsModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
         </div>
         <div id="subAccsListContainer" style="margin-bottom: 12px; max-height: 300px; overflow-y: auto;"></div>
         <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('viewAccsModal')">Đóng</button>
@@ -268,7 +274,7 @@
         let btnEl = event.target;
         let oldText = btnEl.innerText;
         btnEl.disabled = true;
-        btnEl.innerText = "⏳ Đang mã hóa & đăng bán...";
+        btnEl.innerText = "⏳ Đang đăng bán...";
 
         const { data, error } = await _supabase.rpc('dang_ban_tai_khoan', {
             p_platform: platform,
@@ -313,7 +319,7 @@
             return;
         }
 
-        alert(`Đã lưu mẫu "${templateName}" vào database thành công!`);
+        alert(`Đã lưu mẫu "${templateName}" thành công!`);
         loadTemplates();
     }
 
@@ -339,7 +345,7 @@
         let templateId = selectEl.value;
         if (!templateId) return;
 
-        let t = cachedTemplates.find(item => item.id === templateId);
+        let t = cachedTemplates.find(item => String(item.id) === String(templateId));
         if (!t) return;
 
         document.getElementById("postPlatform").value = t.platform || "Shopee";
@@ -348,9 +354,6 @@
         document.getElementById("postDesc").value = t.description || "";
     }
 
-    /* ===================================================
-       CÁC HÀM QUẢN LÝ SẢN PHẨM (GOM NHÓM SẢN PHẨM TRÙNG)
-    =================================================== */
     async function loadProductsList() {
         const container = document.getElementById("productListContainer");
         container.innerHTML = "Đang tải và gom nhóm sản phẩm...";
@@ -361,11 +364,10 @@
             .order('created_at', { ascending: false });
 
         if (error) {
-            container.innerHTML = "Lỗi khi tải danh sách sản phẩm: " + error.message;
+            container.innerHTML = "Lỗi khi tải sản phẩm: " + error.message;
             return;
         }
 
-        // Thực hiện Gom nhóm theo Key: Platform + Title + Price
         let groupMap = {};
         (data || []).forEach(item => {
             let key = `${item.platform || ''}_${(item.title || '').trim().toLowerCase()}_${item.price || 0}`;
@@ -436,8 +438,8 @@
                         <div>Giá: <b style="color: #e74c3c;">${(g.price || 0).toLocaleString('vi-VN')}đ</b></div>
                         <div>
                             <button class="btn-main btn-dark btn-sm" onclick="openViewAccsModal('${g.groupKey}')">📋 Chi tiết (${g.totalCount})</button>
-                            <button class="btn-main btn-dark btn-sm" onclick="openGroupEditModal('${g.groupKey}')">✏️ Sửa</button>
-                            <button class="btn-main btn-sm" style="background-color:#c0392b;" onclick="deleteGroup('${g.groupKey}')">🗑️ Xóa Nhóm</button>
+                            <button class="btn-main btn-dark btn-sm" onclick="openGroupEditModal('${g.groupKey}')">✏️ Sửa/Thêm</button>
+                            <button class="btn-main btn-sm" style="background-color:#c0392b;" onclick="deleteGroup('${g.groupKey}')">🗑️ Xóa</button>
                         </div>
                     </div>
                 </div>
@@ -462,7 +464,7 @@
                     <div>
                         <b>#${idx + 1}</b> - ${statusText} <span style="color:#888;">(${dateStr})</span>
                     </div>
-                    <button class="btn-main btn-sm" style="background:#c0392b; margin:0;" onclick="deleteSingleAcc('${acc.id}', '${groupKey}')">Xóa</button>
+                    <button class="btn-main btn-sm" style="background:#c0392b; margin:0;" onclick="deleteSingleAcc('${acc.id}')">Xóa</button>
                 </div>
             `;
         });
@@ -471,7 +473,7 @@
         document.getElementById("viewAccsModal").style.display = "flex";
     }
 
-    async function deleteSingleAcc(accId, groupKey) {
+    async function deleteSingleAcc(accId) {
         if (!confirm("Bạn có chắc muốn xóa 1 acc này không?")) return;
 
         const { error } = await _supabase.from('mmo_accounts').delete().eq('id', accId);
@@ -494,6 +496,7 @@
         document.getElementById("editTitle").value = g.title || "";
         document.getElementById("editPrice").value = g.price || 0;
         document.getElementById("editDesc").value = g.description || "";
+        document.getElementById("addMoreAccounts").value = "";
 
         document.getElementById("editProductModal").style.display = "flex";
     }
@@ -507,6 +510,7 @@
         let newTitle = document.getElementById("editTitle").value.trim();
         let newPrice = parseInt(document.getElementById("editPrice").value);
         let newDesc = document.getElementById("editDesc").value.trim();
+        let moreAccsRaw = document.getElementById("addMoreAccounts").value.trim();
 
         if (!newTitle || isNaN(newPrice)) {
             alert("Vui lòng nhập đầy đủ Tiêu đề và Giá tiền!");
@@ -530,7 +534,20 @@
             return;
         }
 
-        alert(`Đã cập nhật thông tin cho toàn bộ ${idsToUpdate.length} sản phẩm trong nhóm này!`);
+        if (moreAccsRaw) {
+            let lines = moreAccsRaw.split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length > 0) {
+                await _supabase.rpc('dang_ban_tai_khoan', {
+                    p_platform: newPlatform,
+                    p_price: newPrice,
+                    p_title: newTitle,
+                    p_description: newDesc,
+                    p_details_array: lines
+                });
+            }
+        }
+
+        alert("Cập nhật thông tin thành công!");
         closeModal("editProductModal");
         loadProductsList();
     }
@@ -559,13 +576,29 @@
         loadProductsList();
     }
 
+    async function clearSoldAccounts() {
+        if (!confirm("Bạn có chắc chắn muốn XÓA TẤT CẢ các tài khoản ĐÃ BÁN khỏi cơ sở dữ liệu không? Action này không thể hoàn tác!")) {
+            return;
+        }
+
+        const { error } = await _supabase
+            .from('mmo_accounts')
+            .delete()
+            .not('buyer_username', 'is', null);
+
+        if (error) {
+            alert("Lỗi khi dọn dẹp tài khoản đã bán: " + error.message);
+            return;
+        }
+
+        alert("Đã xóa toàn bộ tài khoản đã bán thành công!");
+        loadProductsList();
+    }
+
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
     }
 
-    /* ===================================================
-       CÁC HÀM CỘNG/TRỪ DƯ & QUẢN LÝ THÀNH VIÊN
-    =================================================== */
     async function adjustUserBalance(specificUser = null, specificAmount = null) {
         let target = specificUser || document.getElementById("targetUsername").value.trim();
         let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
@@ -592,7 +625,7 @@
     }
 
     function quickAdjustUser(username) {
-        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${username} (Nhập số âm nếu muốn trừ, ví dụ: 50000 hoặc -20000):`);
+        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${username} (Nhập số âm để trừ tiền):`);
         if (input === null || input.trim() === "") return;
         let amount = parseInt(input);
         if (isNaN(amount)) {
@@ -636,18 +669,18 @@
 
         let html = '';
         list.forEach(u => {
-            let regTime = u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : 'Không rõ';
+            let regTime = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Không rõ';
             html += `
                 <div class="member-card" onclick="quickAdjustUser('${u.username}')">
                     <div class="member-top">
                         <div class="member-user">👤 @${u.username}</div>
                     </div>
-                    <div class="member-time">⏱️ Ngày đăng ký: ${regTime}</div>
+                    <div class="member-time">⏱️ Đăng ký: ${regTime}</div>
                     <div class="member-stats">
-                        <div>💵 Số dư ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
-                        <div>🛍️ Đã chi tiêu: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
+                        <div>Ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+                        <div>Đã chi: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
                     </div>
-                    <div class="member-action-hint">⚡ Nhấn vào đây để cộng/trừ số dư</div>
+                    <div class="member-action-hint">⚡ Nạp / Trừ tiền</div>
                 </div>
             `;
         });
