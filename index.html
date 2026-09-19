@@ -15,7 +15,7 @@
         .container { max-width: 600px; margin: 0 auto; padding: 12px; }
         
         .section-box { background: #fff; padding: 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #ddd; }
-        .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 
         input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 13px; background: #fafafa; }
         textarea { resize: vertical; min-height: 80px; }
@@ -24,14 +24,25 @@
         .btn-main:hover { background-color: #c0392b; }
         .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.3); }
         .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.3); }
+        .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
 
-        .member-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s; }
+        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.2s; }
+        .member-card { cursor: pointer; }
         .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
-        .member-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .member-user { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
-        .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
-        .member-stats { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
+        .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
+        .member-time, .product-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+        .member-stats, .product-stats { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
         .member-action-hint { font-size: 11px; color: #e67e22; text-align: right; margin-top: 4px; font-weight: bold; }
+
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
+        .badge-green { background: #27ae60; }
+        .badge-red { background: #e74c3c; }
+        .badge-blue { background: #2980b9; }
+
+        /* Modal Chỉnh Sửa */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background: #fff; padding: 18px; border-radius: 12px; width: 90%; max-width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -59,9 +70,8 @@
 
         <!-- 1. Đăng Bán Tài Khoản Mới + Lưu Mẫu Database -->
         <div class="section-box">
-            <div class="section-title">➕ Đăng Bán Tài Khoản Mới</div>
+            <div class="section-title"><span>➕ Đăng Bán Tài Khoản Mới</span></div>
             
-            <!-- Chọn mẫu có sẵn từ Database -->
             <select id="templateSelector" onchange="applyTemplate()" style="background: #eef2f7; font-weight: bold; color: #2c3e50;">
                 <option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>
             </select>
@@ -84,17 +94,44 @@
             </div>
         </div>
 
-        <!-- 2. Cộng / Trừ Số Dư Thành Viên -->
+        <!-- 2. Quản Lý & Chỉnh Sửa Sản Phẩm (MỚI THÊM) -->
         <div class="section-box">
-            <div class="section-title">💰 Cộng / Trừ Số Dư Ví Khách</div>
+            <div class="section-title">
+                <span>📦 Quản Lý & Sửa/Xóa Sản Phẩm</span>
+                <button class="top-btn" style="background:#34495e;" onclick="loadProductsList()">🔄 Tải lại</button>
+            </div>
+            
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                <input type="text" id="searchProductInput" placeholder="🔍 Tìm theo tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
+                <select id="filterPlatform" onchange="filterProducts()" style="margin-bottom:0; flex:1;">
+                    <option value="">Tất cả Nền tảng</option>
+                    <option value="Shopee">Shopee</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Gmail">Gmail</option>
+                    <option value="iCloud">iCloud</option>
+                    <option value="TikTok">TikTok</option>
+                </select>
+                <select id="filterStatus" onchange="filterProducts()" style="margin-bottom:0; flex:1;">
+                    <option value="">Tất cả Trạng thái</option>
+                    <option value="available">Còn hàng</option>
+                    <option value="sold">Đã bán</option>
+                </select>
+            </div>
+
+            <div id="productListContainer" style="margin-top: 10px;">Đang tải danh sách sản phẩm...</div>
+        </div>
+
+        <!-- 3. Cộng / Trừ Số Dư Thành Viên -->
+        <div class="section-box">
+            <div class="section-title"><span>💰 Cộng / Trừ Số Dư Ví Khách</span></div>
             <input type="text" id="targetUsername" placeholder="Nhập Username của khách...">
             <input type="number" id="balanceAmount" placeholder="Số tiền cộng (nhập số âm nếu trừ, ví dụ: 50000 hoặc -20000)...">
             <button class="btn-main btn-green" onclick="adjustUserBalance()">Cập Nhật Số Dư</button>
         </div>
 
-        <!-- 3. Danh Sách Thành Viên -->
+        <!-- 4. Danh Sách Thành Viên -->
         <div class="section-box">
-            <div class="section-title">👥 [Admin] Danh Sách Thành Viên & Chi Tiêu</div>
+            <div class="section-title"><span>👥 [Admin] Danh Sách Thành Viên & Chi Tiêu</span></div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Mẹo: Nhấn trực tiếp vào thẻ của thành viên bất kỳ để cộng/trừ số dư nhanh chóng.</div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
@@ -104,6 +141,39 @@
 
 </div>
 
+<!-- Modal Chỉnh Sửa Sản Phẩm -->
+<div id="editProductModal" class="modal">
+    <div class="modal-content">
+        <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
+            <span>✏️ Cập Nhật Sản Phẩm</span>
+            <span onclick="closeEditModal()" style="cursor:pointer; font-size: 18px; color:#888;">&times;</span>
+        </div>
+        <input type="hidden" id="editProdId">
+        <label style="font-size: 11px; font-weight: bold;">Nền tảng:</label>
+        <select id="editPlatform">
+            <option value="Shopee">Shopee</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Gmail">Gmail</option>
+            <option value="iCloud">iCloud</option>
+            <option value="TikTok">TikTok</option>
+        </select>
+        
+        <label style="font-size: 11px; font-weight: bold;">Tiêu đề sản phẩm:</label>
+        <input type="text" id="editTitle" placeholder="Nhập tiêu đề...">
+        
+        <label style="font-size: 11px; font-weight: bold;">Giá bán (VNĐ):</label>
+        <input type="number" id="editPrice" placeholder="Nhập giá...">
+        
+        <label style="font-size: 11px; font-weight: bold;">Mô tả sản phẩm:</label>
+        <textarea id="editDesc" placeholder="Nhập mô tả..."></textarea>
+        
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveProductEdit()">💾 Lưu Thay Đổi</button>
+            <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeEditModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const SUPABASE_URL = "https://hsdbjzkxbdezysxwwtaw.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
@@ -111,6 +181,7 @@
 
     let cachedMembers = [];
     let cachedTemplates = [];
+    let cachedProducts = [];
 
     // Tự động kiểm tra session đăng nhập khi load trang
     checkAdminSession();
@@ -166,6 +237,7 @@
         document.getElementById("btnLogoutAdmin").style.display = "inline-block";
         loadMemberList();
         loadTemplates();
+        loadProductsList();
     }
 
     async function postNewAccounts(event) {
@@ -191,7 +263,6 @@
         btnEl.disabled = true;
         btnEl.innerText = "⏳ Đang mã hóa & đăng bán...";
 
-        // Gọi hàm RPC bảo mật trên Database để tự động mã hóa tài khoản
         const { data, error } = await _supabase.rpc('dang_ban_tai_khoan', {
             p_platform: platform,
             p_price: price,
@@ -210,6 +281,7 @@
 
         alert(`Đã đăng thành công ${lines.length} tài khoản lên kho (Đã mã hóa an toàn)!`);
         document.getElementById("postAccounts").value = "";
+        loadProductsList();
     }
 
     async function saveCurrentAsTemplate() {
@@ -278,6 +350,156 @@
         document.getElementById("postDesc").value = t.description || "";
     }
 
+    /* ===================================================
+       CÁC HÀM QUẢN LÝ / SỬA / XÓA SẢN PHẨM (NĂNG CẤP MỚI)
+    =================================================== */
+    async function loadProductsList() {
+        const container = document.getElementById("productListContainer");
+        container.innerHTML = "Đang tải sản phẩm...";
+
+        const { data, error } = await _supabase
+            .from('mmo_accounts')
+            .select('id, platform, price, title, description, buyer_username, created_at')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            container.innerHTML = "Lỗi khi tải danh sách sản phẩm: " + error.message;
+            return;
+        }
+
+        cachedProducts = data || [];
+        filterProducts();
+    }
+
+    function filterProducts() {
+        let kw = document.getElementById("searchProductInput").value.toLowerCase().trim();
+        let platform = document.getElementById("filterPlatform").value;
+        let status = document.getElementById("filterStatus").value;
+
+        let filtered = cachedProducts.filter(item => {
+            let matchesKw = !kw || (item.title && item.title.toLowerCase().includes(kw)) || (item.description && item.description.toLowerCase().includes(kw));
+            let matchesPlatform = !platform || item.platform === platform;
+            let matchesStatus = true;
+            if (status === 'available') matchesStatus = !item.buyer_username;
+            if (status === 'sold') matchesStatus = !!item.buyer_username;
+
+            return matchesKw && matchesPlatform && matchesStatus;
+        });
+
+        renderProducts(filtered);
+    }
+
+    function renderProducts(list) {
+        let container = document.getElementById("productListContainer");
+        if (!list || list.length === 0) {
+            container.innerHTML = "<div style='text-align:center; color:#888; font-size:12px;'>Không tìm thấy sản phẩm nào.</div>";
+            return;
+        }
+
+        let html = '';
+        list.forEach(p => {
+            let isSold = !!p.buyer_username;
+            let statusBadge = isSold 
+                ? `<span class="badge badge-red">Đã bán (@${p.buyer_username})</span>` 
+                : `<span class="badge badge-green">Còn hàng</span>`;
+            
+            let timeStr = p.created_at ? new Date(p.created_at).toLocaleString('vi-VN') : 'N/A';
+
+            html += `
+                <div class="product-card">
+                    <div class="product-top">
+                        <div class="product-title">
+                            <span class="badge badge-blue">${p.platform || 'Khác'}</span> 
+                            ${p.title || 'Không có tiêu đề'}
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div style="font-size: 12px; color: #555; margin-bottom: 6px; white-space: pre-line;">${p.description || 'Không có mô tả.'}</div>
+                    <div class="product-time">⏱️ Ngày đăng: ${timeStr}</div>
+                    <div class="product-stats">
+                        <div>💵 Giá bán: <b style="color: #e74c3c;">${(p.price || 0).toLocaleString('vi-VN')}đ</b></div>
+                        <div>
+                            <button class="btn-main btn-dark btn-sm" onclick="openEditModal('${p.id}')">✏️ Sửa</button>
+                            <button class="btn-main btn-sm" style="background-color:#c0392b;" onclick="deleteProduct('${p.id}')">🗑️ Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function openEditModal(id) {
+        let p = cachedProducts.find(item => item.id === id);
+        if (!p) return;
+
+        document.getElementById("editProdId").value = p.id;
+        document.getElementById("editPlatform").value = p.platform || "Shopee";
+        document.getElementById("editTitle").value = p.title || "";
+        document.getElementById("editPrice").value = p.price || 0;
+        document.getElementById("editDesc").value = p.description || "";
+
+        document.getElementById("editProductModal").style.display = "flex";
+    }
+
+    function closeEditModal() {
+        document.getElementById("editProductModal").style.display = "none";
+    }
+
+    async function saveProductEdit() {
+        let id = document.getElementById("editProdId").value;
+        let platform = document.getElementById("editPlatform").value;
+        let title = document.getElementById("editTitle").value.trim();
+        let price = parseInt(document.getElementById("editPrice").value);
+        let desc = document.getElementById("editDesc").value.trim();
+
+        if (!title || isNaN(price)) {
+            alert("Vui lòng nhập đầy đủ Tiêu đề và Giá tiền!");
+            return;
+        }
+
+        const { error } = await _supabase
+            .from('mmo_accounts')
+            .update({
+                platform: platform,
+                title: title,
+                price: price,
+                description: desc
+            })
+            .eq('id', id);
+
+        if (error) {
+            alert("Lỗi khi cập nhật sản phẩm: " + error.message);
+            return;
+        }
+
+        alert("Cập nhật sản phẩm thành công!");
+        closeEditModal();
+        loadProductsList();
+    }
+
+    async function deleteProduct(id) {
+        if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi hệ thống? Action không thể hoàn tác!")) {
+            return;
+        }
+
+        const { error } = await _supabase
+            .from('mmo_accounts')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            alert("Lỗi khi xóa sản phẩm: " + error.message);
+            return;
+        }
+
+        alert("Xóa sản phẩm thành công!");
+        loadProductsList();
+    }
+
+    /* ===================================================
+       CÁC HÀM CỘNG/TRỪ DƯ & QUẢN LÝ THÀNH VIÊN
+    =================================================== */
     async function adjustUserBalance(specificUser = null, specificAmount = null) {
         let target = specificUser || document.getElementById("targetUsername").value.trim();
         let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
