@@ -112,11 +112,8 @@
         </div>
 
         <div class="section-box">
-            <div class="section-title">
-                <span>👥 Danh Sách Thành Viên & Chi Tiêu</span>
-                <button class="top-btn" style="background:#2980b9;" onclick="loadDepositHistory()">📜 Lịch Sử Nạp</button>
-            </div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của khách để cộng/trừ nhanh số dư, hoặc nhấn xóa để hủy tài khoản.</div>
+            <div class="section-title"><span>👥 Danh Sách Thành Viên & Chi Tiêu</span></div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của khách để cộng/trừ nhanh số dư.</div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
@@ -165,18 +162,6 @@
     </div>
 </div>
 
-<!-- Modal Xem Lịch Sử Cộng/Trừ Tiền -->
-<div id="depositHistoryModal" class="modal">
-    <div class="modal-content" style="max-width: 650px;">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span>📜 Lịch Sử Cộng / Trừ Tiền (Admin & Hệ Thống)</span>
-            <span onclick="closeModal('depositHistoryModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
-        </div>
-        <div id="depositHistoryContainer" style="max-height: 350px; overflow-y: auto; font-size: 12px;">Đang tải lịch sử...</div>
-        <button class="btn-main btn-dark" style="margin-top: 10px; margin-bottom:0;" onclick="closeModal('depositHistoryModal')">Đóng</button>
-    </div>
-</div>
-
 <script>
     const SUPABASE_URL = "https://hsdbjzkxbdezysxwwtaw.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
@@ -187,32 +172,24 @@
     let cachedGroupedProducts = [];
     let adjusting = false;
 
+    // Escape mọi dữ liệu đưa vào innerHTML (chống XSS)
     function esc(s) {
         return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
     checkAdminSession();
 
-    // Ép cứng kiểm tra theo email của bạn
+    // Chỉ cho vào khi tài khoản có trong bảng admins
     async function verifyAdmin() {
-        const { data: { session } } = await _supabase.auth.getSession();
-        if (!session || !session.user) return false;
-
-        if (session.user.email === 'hodaccuongkt@gmail.com') {
-            return true;
-        }
-        return false;
+        const { data, error } = await _supabase.rpc('is_admin');
+        return !error && data === true;
     }
 
     async function checkAdminSession() {
         const { data: { session } } = await _supabase.auth.getSession();
         if (session && session.user) {
-            if (await verifyAdmin()) {
-                showAdminPanel();
-            } else {
-                await _supabase.auth.signOut();
-                logoutAdminUI();
-            }
+            if (await verifyAdmin()) showAdminPanel();
+            else { await _supabase.auth.signOut(); logoutAdminUI(); }
         } else {
             logoutAdminUI();
         }
@@ -537,7 +514,7 @@
     }
 
     async function adjustUserBalance(specificUser = null, specificAmount = null) {
-        if (adjusting) return;
+        if (adjusting) return;   // chặn bấm 2 lần
         let target = (specificUser || document.getElementById("targetUsername").value.trim()).replace(/^@/, '');
         let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
 
@@ -547,7 +524,7 @@
 
         adjusting = true;
         const btn = document.getElementById("btnAdjust");
-        if (btn) btn.disabled = true;
+        btn.disabled = true;
 
         try {
             const { data, error } = await _supabase.rpc('admin_cong_tien', {
@@ -568,7 +545,7 @@
             alert("Lỗi kết nối: " + e.message);
         } finally {
             adjusting = false;
-            if (btn) btn.disabled = false;
+            btn.disabled = false;
         }
     }
 
@@ -578,78 +555,6 @@
         let amount = parseInt(input);
         if (isNaN(amount)) { alert("Vui lòng nhập một số hợp lệ!"); return; }
         adjustUserBalance(username, amount);
-    }
-
-    async function deleteMember(userId, username, event) {
-        event.stopPropagation();
-
-        if (!confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN thành viên @${username} khỏi hệ thống không?`)) {
-            return;
-        }
-
-        const { error } = await _supabase.from('members').delete().eq('id', userId);
-        if (error) {
-            alert("Lỗi khi xóa thành viên: " + error.message);
-            return;
-        }
-
-        alert(`Đã xóa thành công thành viên @${username}!`);
-        loadMemberList();
-    }
-
-    async function loadDepositHistory() {
-        let modal = document.getElementById("depositHistoryModal");
-        let container = document.getElementById("depositHistoryContainer");
-        container.innerHTML = "Đang tải lịch sử giao dịch...";
-        modal.style.display = "flex";
-
-        const { data, error } = await _supabase
-            .from('deposit_history')
-            .select('amount, type, note, created_at, members(username)')
-            .order('created_at', { ascending: false })
-            .limit(50);
-
-        if (error) {
-            container.innerHTML = "Lỗi tải lịch sử: " + error.message;
-            return;
-        }
-
-        if (!data || data.length === 0) {
-            container.innerHTML = "<div style='text-align:center; color:#888;'>Chưa có lịch sử giao dịch nào.</div>";
-            return;
-        }
-
-        let html = `
-            <table style="width:100%; border-collapse: collapse; text-align: left;">
-                <thead>
-                    <tr style="border-bottom: 2px solid #ddd; background: #f8fafc;">
-                        <th style="padding: 8px;">Thời gian</th>
-                        <th style="padding: 8px;">Thành viên</th>
-                        <th style="padding: 8px;">Số tiền</th>
-                        <th style="padding: 8px;">Nội dung</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        data.forEach(item => {
-            let timeStr = new Date(item.created_at).toLocaleString('vi-VN');
-            let username = item.members ? `@${item.members.username}` : 'Khách vãng lai/Đã xóa';
-            let amountColor = item.amount >= 0 ? 'color: #27ae60; font-weight:bold;' : 'color: #e74c3c; font-weight:bold;';
-            let formattedAmount = (item.amount > 0 ? '+' : '') + item.amount.toLocaleString('vi-VN') + 'đ';
-
-            html += `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 8px; color: #666; font-size: 11px;">${esc(timeStr)}</td>
-                    <td style="padding: 8px; font-weight: bold;">${esc(username)}</td>
-                    <td style="padding: 8px; ${amountColor}">${esc(formattedAmount)}</td>
-                    <td style="padding: 8px; font-size: 11px;">${esc(item.note || '')}</td>
-                </tr>
-            `;
-        });
-
-        html += `</tbody></table>`;
-        container.innerHTML = html;
     }
 
     async function loadMemberList() {
@@ -678,20 +583,15 @@
         let html = '';
         list.forEach(u => {
             let regTime = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Không rõ';
-            let uNameEsc = esc(u.username);
-            let uIdEsc = esc(u.id);
             html += `
-                <div class="member-card" data-u="${uNameEsc}" onclick="quickAdjustUser(this.dataset.u)">
-                    <div class="member-top">
-                        <div class="member-user">👤 @${uNameEsc}</div>
-                        <button class="btn-main btn-sm" style="background:#c0392b; margin:0; padding: 4px 8px;" data-id="${uIdEsc}" data-name="${uNameEsc}" onclick="deleteMember(this.dataset.id, this.dataset.name, event)">🗑️ Xóa</button>
-                    </div>
+                <div class="member-card" data-u="${esc(u.username)}" onclick="quickAdjustUser(this.dataset.u)">
+                    <div class="member-top"><div class="member-user">👤 @${esc(u.username)}</div></div>
                     <div class="member-time">⏱️ Đăng ký: ${esc(regTime)}</div>
                     <div class="member-stats">
                         <div>Ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
                         <div>Đã chi: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
                     </div>
-                    <div class="member-action-hint">⚡ Nạp / Trừ tiền (Chạm để sửa)</div>
+                    <div class="member-action-hint">⚡ Nạp / Trừ tiền</div>
                 </div>
             `;
         });
