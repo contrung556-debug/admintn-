@@ -3,38 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopee MMO - Khu Vực Quản Trị Admin</title>
+    <title>Shopee MMO - Trung Tâm Quản Trị Thông Minh</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; font-size: 14px; }
-        .store-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 12px 15px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
-        .store-name { font-size: 15px; font-weight: bold; }
-        .top-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
-        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
-        .section-box { background: #fff; padding: 14px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e1e8ed; }
-        .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fafafa; -webkit-appearance: none; }
-        textarea { resize: vertical; min-height: 80px; }
-        .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.2); }
-        .btn-main:active { opacity: 0.8; }
-        .btn-main:disabled { opacity: 0.5; }
-        .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.2); }
-        .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.2); }
-        .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
-        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; cursor: pointer; }
-        .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
-        .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
-        .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
-        .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; flex-wrap: wrap; gap: 6px; }
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
-        .badge-green { background: #27ae60; }
-        .badge-red { background: #e74c3c; }
-        .badge-blue { background: #2980b9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background: #fff; padding: 15px; border-radius: 12px; width: 92%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .sub-acc-item, .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 11px; gap: 8px; }
+        * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: #f8fafc; margin: 0; padding: 0; color: #1e293b; font-size: 14px; }
+        
+        /* Header */
+        .store-header { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 16px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .store-name { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        .top-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .top-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .container { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-card { background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .stat-value { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+        .stat-label { font-size: 11px; color: #64748b; font-weight: 500; }
+
+        /* Section Box */
+        .section-box { background: #fff; padding: 18px; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02); margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .section-title { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; letter-spacing: -0.2px; }
+        
+        /* Inputs & Controls */
+        label { font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; background: #fdfdfd; transition: all 0.2s; outline: none; }
+        input:focus, textarea:focus, select:focus { border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        textarea { resize: vertical; min-height: 90px; }
+
+        /* Buttons */
+        .btn-main { background-color: #ef4444; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; font-size: 13px; margin-bottom: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
+        .btn-main:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-main:active { transform: translateY(0); }
+        .btn-green { background-color: #10b981 !important; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); }
+        .btn-dark { background-color: #334155 !important; box-shadow: 0 2px 4px rgba(51, 65, 85, 0.2); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; }
+
+        /* Cards Item */
+        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px; transition: all 0.2s; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.01); }
+        .member-card:hover, .product-card:hover { border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); background: #f8fafc; }
+        .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .member-user, .product-title { font-weight: 600; font-size: 13px; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+        .member-time { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+        .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 8px; flex-wrap: wrap; gap: 6px; }
+        
+        /* Badges */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; color: #fff; display: inline-block; letter-spacing: 0.3px; }
+        .badge-green { background: #10b981; }
+        .badge-red { background: #ef4444; }
+        .badge-blue { background: #3b82f6; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        
+        .sub-acc-item, .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; gap: 8px; }
     </style>
 </head>
 <body>
@@ -42,54 +69,88 @@
 <div class="store-header">
     <div class="store-name">⚡ ADMIN QUẢN TRỊ MMO</div>
     <div>
-        <a href="index.html" class="top-btn" style="background:#ee4d2d;">← Trang Khách</a>
-        <button class="top-btn" id="btnLogoutAdmin" style="display:none; background:#c0392b;" onclick="logoutAdmin()">Thoát</button>
+        <a href="index.html" class="top-btn">← Trang Khách</a>
+        <button class="top-btn" id="btnLogoutAdmin" style="display:none; background:rgba(239, 68, 68, 0.2); border-color:rgba(239, 68, 68, 0.4);" onclick="logoutAdmin()">Thoát</button>
     </div>
 </div>
 
 <div class="container">
 
+    <!-- Khu vực Đăng nhập -->
     <div class="section-box" id="adminLoginBox">
-        <div class="section-title">🔐 Đăng Nhập Quản Trị (Supabase Auth)</div>
-        <input type="email" id="adminEmail" placeholder="Email Admin...">
-        <input type="password" id="adminPass" placeholder="Mật khẩu Admin...">
-        <button class="btn-main" onclick="loginAdminAuth()">Đăng Nhập</button>
+        <div class="section-title">🔐 Đăng Nhập Quản Trị Hệ Thống</div>
+        <label>Email Quản Trị</label>
+        <input type="email" id="adminEmail" placeholder="admin@gmail.com">
+        <label>Mật Khẩu</label>
+        <input type="password" id="adminPass" placeholder="••••••••">
+        <button class="btn-main" onclick="loginAdminAuth()">Truy Cập Hệ Thống</button>
     </div>
 
+    <!-- Khu vực Dashboard chính -->
     <div id="adminDashboard" style="display: none;">
 
+        <!-- Thẻ thống kê tổng quan -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Thành Viên</div>
+                <div class="stat-value" id="statMembersCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Kho Acc Còn</div>
+                <div class="stat-value" id="statProductsCount" style="color: #10b981;">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Đã Bán</div>
+                <div class="stat-value" id="statSoldCount" style="color: #ef4444;">0</div>
+            </div>
+        </div>
+
+        <!-- Đăng bán sản phẩm -->
         <div class="section-box">
             <div class="section-title"><span>➕ Đăng Bán Tài Khoản Mới</span></div>
-            <select id="templateSelector" onchange="applyTemplate()" style="background: #eef2f7; font-weight: bold; color: #2c3e50;">
-                <option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>
+            <label>Chọn Mẫu Đã Lưu</label>
+            <select id="templateSelector" onchange="applyTemplate()" style="background: #f8fafc; font-weight: 600; color: #334155;">
+                <option value="">-- 📋 Chọn nhanh mẫu có sẵn --</option>
             </select>
-            <select id="postPlatform">
-                <option value="Shopee">Shopee</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Gmail">Gmail</option>
-                <option value="iCloud">iCloud</option>
-                <option value="TikTok">TikTok</option>
-            </select>
-            <input type="number" id="postPrice" placeholder="Giá tiền mỗi tài khoản (VNĐ)...">
-            <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (VD: Shopee cổ đã ngâm)...">
-            <textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea>
-            <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Nền Tảng</label>
+                    <select id="postPlatform">
+                        <option value="Shopee">Shopee</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Gmail">Gmail</option>
+                        <option value="iCloud">iCloud</option>
+                        <option value="TikTok">TikTok</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Giá Tiền (VNĐ)</label>
+                    <input type="number" id="postPrice" placeholder="50000">
+                </div>
+            </div>
+            <label>Tiêu Đề Hiển Thị</label>
+            <input type="text" id="postTitle" placeholder="VD: Shopee cổ đã ngâm, trust cao...">
+            <label>Mô Tả & Bảo Hành</label>
+            <textarea id="postDesc" placeholder="Thông tin chi tiết, chế độ bảo hành..."></textarea>
+            <label>Danh Sách Tài Khoản (Mỗi dòng 1 acc: user|pass|ghi_chú)</label>
+            <textarea id="postAccounts" placeholder="user1|pass1|via_us...&#10;user2|pass2|via_us..." style="font-family: monospace;"></textarea>
             <div style="display: flex; gap: 8px;">
-                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts(event)">Đăng Bán Lên Kho</button>
+                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts(event)">Đăng Lên Kho</button>
                 <button class="btn-main btn-dark" style="flex: 1; margin-bottom: 0;" onclick="saveCurrentAsTemplate()">💾 Lưu Mẫu</button>
             </div>
         </div>
 
+        <!-- Quản lý sản phẩm -->
         <div class="section-box">
             <div class="section-title">
-                <span>📦 Quản Lý Sản Phẩm</span>
-                <div>
-                    <button class="top-btn" style="background:#c0392b; margin-right:4px;" onclick="clearSoldAccounts()">🧹 Xóa Acc Đã Bán</button>
-                    <button class="top-btn" style="background:#34495e;" onclick="loadProductsList()">🔄 Tải lại</button>
+                <span>📦 Quản Lý Kho Sản Phẩm</span>
+                <div style="display: flex; gap: 4px;">
+                    <button class="top-btn" style="background:#ef4444; border-color:#ef4444;" onclick="clearSoldAccounts()">🧹 Dọn Đã Bán</button>
+                    <button class="top-btn" style="background:#334155; border-color:#334155;" onclick="loadProductsList()">🔄 Tải Lại</button>
                 </div>
             </div>
-            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                <input type="text" id="searchProductInput" placeholder="🔍 Tìm tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
+            <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+                <input type="text" id="searchProductInput" placeholder="🔍 Tìm kiếm tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
                 <select id="filterPlatform" onchange="filterProducts()" style="margin-bottom:0; flex:1;">
                     <option value="">Tất cả</option>
                     <option value="Shopee">Shopee</option>
@@ -102,16 +163,25 @@
             <div id="productListContainer" style="margin-top: 10px;">Đang tải danh sách sản phẩm...</div>
         </div>
 
+        <!-- Cộng trừ ví -->
         <div class="section-box">
-            <div class="section-title"><span>💰 Cộng / Trừ Số Dư Ví Khách</span></div>
-            <input type="text" id="targetUsername" placeholder="Nhập Username của khách..." autocapitalize="none" autocorrect="off">
-            <input type="number" id="balanceAmount" placeholder="Số tiền (VD: 50000 hoặc -20000)...">
-            <button class="btn-main btn-green" id="btnAdjust" onclick="adjustUserBalance()">Cập Nhật Số Dư</button>
+            <div class="section-title"><span>💰 Biến Động Số Dư Ví Khách</span></div>
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px;">
+                <div>
+                    <label>Username Khách</label>
+                    <input type="text" id="targetUsername" placeholder="vd: hongduc001" autocapitalize="none" autocorrect="off" style="margin-bottom:0;">
+                </div>
+                <div>
+                    <label>Số Tiền (+ hoặc -)</label>
+                    <input type="number" id="balanceAmount" placeholder="50000 hoặc -20000" style="margin-bottom:0;">
+                </div>
+            </div>
+            <button class="btn-main btn-green" id="btnAdjust" style="margin-top: 12px; margin-bottom:0;" onclick="adjustUserBalance()">Thực Hiện Cập Nhật Số Dư</button>
         </div>
 
+        <!-- Danh sách thành viên -->
         <div class="section-box">
             <div class="section-title"><span>👥 Danh Sách Thành Viên & Quản Lý</span></div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của thành viên để xem lịch sử & quản lý tài khoản.</div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
@@ -122,12 +192,12 @@
 <!-- Modal Sửa Sản Phẩm -->
 <div id="editProductModal" class="modal">
     <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span>✏️ Sửa Sản Phẩm Nhóm</span>
-            <span onclick="closeModal('editProductModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 14px; color: #0f172a; display:flex; justify-content:space-between; align-items:center;">
+            <span>✏️ Chỉnh Sửa Nhóm Sản Phẩm</span>
+            <span onclick="closeModal('editProductModal')" style="cursor:pointer; font-size: 22px; color:#94a3b8;">&times;</span>
         </div>
         <input type="hidden" id="editGroupKey">
-        <label style="font-size: 11px; font-weight: bold;">Nền tảng:</label>
+        <label>Nền Tảng</label>
         <select id="editPlatform">
             <option value="Shopee">Shopee</option>
             <option value="Facebook">Facebook</option>
@@ -135,48 +205,48 @@
             <option value="iCloud">iCloud</option>
             <option value="TikTok">TikTok</option>
         </select>
-        <label style="font-size: 11px; font-weight: bold;">Tiêu đề sản phẩm:</label>
+        <label>Tiêu Đề Sản Phẩm</label>
         <input type="text" id="editTitle" placeholder="Nhập tiêu đề...">
-        <label style="font-size: 11px; font-weight: bold;">Giá bán (VNĐ):</label>
+        <label>Giá Bán (VNĐ)</label>
         <input type="number" id="editPrice" placeholder="Nhập giá...">
-        <label style="font-size: 11px; font-weight: bold;">Mô tả sản phẩm:</label>
+        <label>Mô Tả Chi Tiết</label>
         <textarea id="editDesc" placeholder="Nhập mô tả..."></textarea>
-        <label style="font-size: 11px; font-weight: bold; color: #27ae60;">➕ Nhập thêm tài khoản vào nhóm này (Mỗi dòng 1 acc):</label>
+        <label style="color: #10b981;">➕ Thêm Tài Khoản Mới Vào Nhóm (Mỗi dòng 1 acc)</label>
         <textarea id="addMoreAccounts" placeholder="user|pass|ghi_chú..."></textarea>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveGroupEdit()">💾 Cập Nhật Tất Cả</button>
-            <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('editProductModal')">Hủy</button>
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveGroupEdit()">Lưu Thay Đổi</button>
+            <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('editProductModal')">Hủy Bỏ</button>
         </div>
     </div>
 </div>
 
-<!-- Modal Xem Chi Tiết Tài Khoản Acc -->
+<!-- Modal Chi Tiết Kho Acc Nhỏ -->
 <div id="viewAccsModal" class="modal">
     <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span id="viewAccsTitle">📋 Danh Sách Tài Khoản</span>
-            <span onclick="closeModal('viewAccsModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 12px; color: #0f172a; display:flex; justify-content:space-between; align-items:center;">
+            <span id="viewAccsTitle">📋 Chi Tiết Tài Khoản</span>
+            <span onclick="closeModal('viewAccsModal')" style="cursor:pointer; font-size: 22px; color:#94a3b8;">&times;</span>
         </div>
-        <div id="subAccsListContainer" style="margin-bottom: 12px; max-height: 300px; overflow-y: auto;"></div>
-        <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('viewAccsModal')">Đóng</button>
+        <div id="subAccsListContainer" style="margin-bottom: 14px; max-height: 320px; overflow-y: auto;"></div>
+        <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('viewAccsModal')">Đóng Cửa Sổ</button>
     </div>
 </div>
 
-<!-- Modal Lịch Sử Giao Dịch & Quản Lý Thành Viên -->
+<!-- Modal Quản Lý Thành Viên & Lịch Sử Ví -->
 <div id="memberDetailModal" class="modal">
     <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 10px; color: #0f172a; display:flex; justify-content:space-between; align-items:center;">
             <span id="memberDetailTitle">👤 Quản Lý Thành Viên</span>
-            <span onclick="closeModal('memberDetailModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
+            <span onclick="closeModal('memberDetailModal')" style="cursor:pointer; font-size: 22px; color:#94a3b8;">&times;</span>
         </div>
-        <div style="font-size: 12px; margin-bottom: 10px; color: #555;" id="memberDetailMeta"></div>
+        <div style="font-size: 12px; margin-bottom: 12px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;" id="memberDetailMeta"></div>
         
-        <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #2c3e50;">📜 Lịch sử cộng/trừ tiền (Chỉ xem):</div>
-        <div id="memberHistoryContainer" style="margin-bottom: 15px; max-height: 220px; overflow-y: auto; border: 1px solid #eee; padding: 6px; border-radius: 6px;"></div>
+        <div style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #0f172a;">📜 Lịch Sử Biến Động Ví:</div>
+        <div id="memberHistoryContainer" style="margin-bottom: 16px; max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px; background: #fff;"></div>
 
         <div style="display: flex; gap: 8px;">
             <button class="btn-main btn-green" style="margin-bottom:0; flex:1;" onclick="promptAdjustFromModal()">💰 Cộng/Trừ Tiền</button>
-            <button class="btn-main" style="margin-bottom:0; flex:1; background:#c0392b;" onclick="deleteThisMember()">🗑️ Xóa Tài Khoản</button>
+            <button class="btn-main" style="margin-bottom:0; flex:1; background:#ef4444;" onclick="deleteThisMember()">🗑️️ Xóa Thành Viên</button>
         </div>
     </div>
 </div>
@@ -228,7 +298,6 @@
                 alert("Tài khoản này không có quyền quản trị!");
                 return;
             }
-            alert("Đăng nhập quản trị thành công!");
             showAdminPanel();
         }
     }
@@ -247,7 +316,7 @@
     function showAdminPanel() {
         document.getElementById("adminLoginBox").style.display = "none";
         document.getElementById("adminDashboard").style.display = "block";
-        document.getElementById("btnLogoutAdmin").style.display = "inline-block";
+        document.getElementById("btnLogoutAdmin").style.display = "inline-flex";
         loadMemberList();
         loadTemplates();
         loadProductsList();
@@ -319,7 +388,7 @@
         let selectEl = document.getElementById("templateSelector");
         if (!selectEl) return;
 
-        selectEl.innerHTML = '<option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>';
+        selectEl.innerHTML = '<option value="">-- 📋 Chọn nhanh mẫu có sẵn --</option>';
         cachedTemplates.forEach((t) => {
             let opt = document.createElement("option");
             opt.value = t.id;
@@ -353,6 +422,9 @@
         if (error) { container.textContent = "Lỗi khi tải sản phẩm: " + error.message; return; }
 
         let groupMap = {};
+        let totalAvail = 0;
+        let totalSold = 0;
+
         (data || []).forEach(item => {
             let key = `${item.platform || ''}_${(item.title || '').trim().toLowerCase()}_${item.price || 0}`;
             if (!groupMap[key]) {
@@ -360,8 +432,12 @@
             }
             groupMap[key].items.push(item);
             groupMap[key].totalCount++;
-            if (item.buyer_username) groupMap[key].soldCount++; else groupMap[key].availableCount++;
+            if (item.buyer_username) { groupMap[key].soldCount++; totalSold++; } 
+            else { groupMap[key].availableCount++; totalAvail++; }
         });
+
+        document.getElementById("statProductsCount").textContent = totalAvail;
+        document.getElementById("statSoldCount").textContent = totalSold;
 
         cachedGroupedProducts = Object.values(groupMap);
         filterProducts();
@@ -383,7 +459,7 @@
     function renderGroupedProducts(list) {
         let container = document.getElementById("productListContainer");
         if (!list || list.length === 0) {
-            container.innerHTML = "<div style='text-align:center; color:#888; font-size:12px;'>Không tìm thấy sản phẩm nào.</div>";
+            container.innerHTML = "<div style='text-align:center; color:#94a3b8; font-size:12px; padding: 20px;'>Không tìm thấy sản phẩm nào trong kho.</div>";
             return;
         }
 
@@ -391,7 +467,7 @@
         list.forEach(g => {
             let k = esc(g.groupKey);
             html += `
-                <div class="product-card" style="cursor:default;">
+                <div class="product-card">
                     <div class="product-top">
                         <div class="product-title">
                             <span class="badge badge-blue">${esc(g.platform || 'Khác')}</span>
@@ -399,16 +475,16 @@
                         </div>
                         <div>
                             <span class="badge badge-green">Còn: ${g.availableCount}</span>
-                            <span class="badge badge-red">Đã bán: ${g.soldCount}</span>
+                            <span class="badge badge-red">Bán: ${g.soldCount}</span>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 6px; white-space: pre-line;">${esc(g.description || 'Không có mô tả.')}</div>
+                    <div style="font-size: 12px; color: #475569; margin-bottom: 8px; white-space: pre-line;">${esc(g.description || 'Không có mô tả.')}</div>
                     <div class="product-stats">
-                        <div>Giá: <b style="color: #e74c3c;">${(g.price || 0).toLocaleString('vi-VN')}đ</b></div>
+                        <div>Giá: <b style="color: #ef4444;">${(g.price || 0).toLocaleString('vi-VN')}đ</b></div>
                         <div>
-                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openViewAccsModal(this.dataset.k)">📋 Chi tiết (${g.totalCount})</button>
-                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openGroupEditModal(this.dataset.k)">✏️ Sửa/Thêm</button>
-                            <button class="btn-main btn-sm" style="background-color:#c0392b;" data-k="${k}" onclick="deleteGroup(this.dataset.k)">🗑️ Xóa</button>
+                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openViewAccsModal(this.dataset.k)">📋 Chi Tiết</button>
+                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openGroupEditModal(this.dataset.k)">✏️ Sửa</button>
+                            <button class="btn-main btn-sm" style="background-color:#ef4444;" data-k="${k}" onclick="deleteGroup(this.dataset.k)">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -421,17 +497,17 @@
         let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
         if (!g) return;
 
-        document.getElementById("viewAccsTitle").textContent = `📋 Danh Sách Acc: ${g.title}`;
+        document.getElementById("viewAccsTitle").textContent = `📋 ${g.title}`;
         let container = document.getElementById("subAccsListContainer");
 
         let html = '';
         g.items.forEach((acc, idx) => {
-            let statusText = acc.buyer_username ? `<b style="color:#e74c3c;">Đã bán (@${esc(acc.buyer_username)})</b>` : `<b style="color:#27ae60;">Còn hàng</b>`;
+            let statusText = acc.buyer_username ? `<b style="color:#ef4444;">Đã bán (@${esc(acc.buyer_username)})</b>` : `<b style="color:#10b981;">Còn hàng</b>`;
             let dateStr = acc.created_at ? new Date(acc.created_at).toLocaleDateString('vi-VN') : '';
             html += `
                 <div class="sub-acc-item">
-                    <div><b>#${idx + 1}</b> - ${statusText} <span style="color:#888;">(${esc(dateStr)})</span></div>
-                    <button class="btn-main btn-sm" style="background:#c0392b; margin:0;" data-id="${esc(acc.id)}" onclick="deleteSingleAcc(this.dataset.id)">Xóa</button>
+                    <div><b>#${idx + 1}</b> - ${statusText} <span style="color:#94a3b8;">(${esc(dateStr)})</span></div>
+                    <button class="btn-main btn-sm" style="background:#ef4444; margin:0; padding:4px 8px;" data-id="${esc(acc.id)}" onclick="deleteSingleAcc(this.dataset.id)">Xóa</button>
                 </div>
             `;
         });
@@ -441,7 +517,7 @@
     }
 
     async function deleteSingleAcc(accId) {
-        if (!confirm("Bạn có chắc muốn xóa 1 acc này không?")) return;
+        if (!confirm("Bạn có chắc muốn xóa tài khoản này không?")) return;
 
         const { error } = await _supabase.from('mmo_accounts').delete().eq('id', accId);
         if (error) { alert("Lỗi khi xóa: " + error.message); return; }
@@ -505,7 +581,7 @@
         let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
         if (!g) return;
 
-        if (!confirm(`Bạn có chắc muốn XÓA TOÀN BỘ ${g.totalCount} acc thuộc nhóm "${g.title}" này?`)) return;
+        if (!confirm(`Bạn có chắc muốn XÓA TOÀN BỘ ${g.totalCount} tài khoản thuộc nhóm "${g.title}" này không?`)) return;
 
         let idsToDelete = g.items.map(i => i.id);
         const { error } = await _supabase.from('mmo_accounts').delete().in('id', idsToDelete);
@@ -517,7 +593,7 @@
     }
 
     async function clearSoldAccounts() {
-        if (!confirm("Bạn có chắc chắn muốn XÓA TẤT CẢ các tài khoản ĐÃ BÁN khỏi cơ sở dữ liệu không? Action này không thể hoàn tác!")) return;
+        if (!confirm("Bạn có chắc chắn muốn XÓA TẤT CẢ các tài khoản ĐÃ BÁN khỏi cơ sở dữ liệu không?")) return;
 
         const { error } = await _supabase.from('mmo_accounts').delete().not('buyer_username', 'is', null);
 
@@ -536,9 +612,9 @@
         let target = (specificUser || document.getElementById("targetUsername").value.trim()).replace(/^@/, '');
         let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
 
-        if (!target || isNaN(amount) || amount === 0) { alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ (khác 0)!"); return; }
+        if (!target || isNaN(amount) || amount === 0) { alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ khác 0!"); return; }
 
-        if (!confirm(`${amount > 0 ? 'Cộng' : 'Trừ'} ${Math.abs(amount).toLocaleString('vi-VN')}đ cho @${target}?`)) return;
+        if (!confirm(`${amount > 0 ? 'Cộng' : 'Trừ'} ${Math.abs(amount).toLocaleString('vi-VN')}đ cho thành viên @${target}?`)) return;
 
         adjusting = true;
         const btn = document.getElementById("btnAdjust");
@@ -555,7 +631,7 @@
                 return;
             }
 
-            alert(`✅ Đã cập nhật số dư cho @${target}. Số dư mới: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
+            alert(`✅ Cập nhật số dư thành công! Số dư mới của @${target}: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
             if (document.getElementById("targetUsername")) document.getElementById("targetUsername").value = "";
             if (document.getElementById("balanceAmount")) document.getElementById("balanceAmount").value = "";
             
@@ -578,6 +654,8 @@
             return;
         }
 
+        document.getElementById("statMembersCount").textContent = users ? users.length : 0;
+
         const { data: purchases } = await _supabase.from('mmo_accounts').select('buyer_username, price').not('buyer_username', 'is', null);
         let spendMap = {};
         if (purchases) {
@@ -592,7 +670,7 @@
 
     function renderMembers(list) {
         let container = document.getElementById("memberListContainer");
-        if (!list || list.length === 0) { container.innerHTML = "Chưa có thành viên nào."; return; }
+        if (!list || list.length === 0) { container.innerHTML = "<div style='text-align:center; color:#94a3b8; font-size:12px; padding: 20px;'>Chưa có thành viên nào.</div>"; return; }
 
         let html = '';
         list.forEach(u => {
@@ -603,10 +681,10 @@
                     <div class="member-top"><div class="member-user">👤 @${uEsc}</div></div>
                     <div class="member-time">⏱️ Đăng ký: ${esc(regTime)}</div>
                     <div class="member-stats">
-                        <div>Ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
-                        <div>Đã chi: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
+                        <div>Ví: <b style="color: #10b981;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+                        <div>Đã chi: <b style="color: #ef4444;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
                     </div>
-                    <div style="font-size: 11px; color: #2980b9; text-align: right; margin-top: 4px; font-weight: bold;">🔍 Xem Lịch Sử / Quản Lý</div>
+                    <div style="font-size: 11px; color: #3b82f6; text-align: right; margin-top: 6px; font-weight: 600;">🔍 Xem lịch sử ví & Quản lý</div>
                 </div>
             `;
         });
@@ -620,11 +698,10 @@
 
         document.getElementById("memberDetailTitle").textContent = `👤 @${u.username}`;
         document.getElementById("memberDetailMeta").innerHTML = `
-            <div>Số dư hiện tại: <b style="color:#27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
-            <div>Tổng tiền đã mua hàng: <b style="color:#e74c3c;">${(u.totalSpend || 0).toLocaleString('vi-VN')}đ</b></div>
+            <div>Số dư hiện tại: <b style="color:#10b981;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+            <div>Tổng tiền đã mua hàng: <b style="color:#ef4444;">${(u.totalSpend || 0).toLocaleString('vi-VN')}đ</b></div>
         `;
 
-        // Tải lịch sử giao dịch ví để xem
         const { data: histories, error } = await _supabase
             .from('deposit_history')
             .select('*')
@@ -633,19 +710,19 @@
 
         let historyContainer = document.getElementById("memberHistoryContainer");
         if (error || !histories || histories.length === 0) {
-            historyContainer.innerHTML = "<div style='color:#888; text-align:center; font-size:11px; padding: 10px;'>Chưa có lịch sử giao dịch ví nào.</div>";
+            historyContainer.innerHTML = "<div style='color:#94a3b8; text-align:center; font-size:11px; padding: 12px;'>Chưa có lịch sử biến động ví nào.</div>";
         } else {
             let hHtml = '';
             histories.forEach(h => {
                 let timeStr = h.created_at ? new Date(h.created_at).toLocaleString('vi-VN') : '';
-                let amountColor = h.amount >= 0 ? 'color:#27ae60;' : 'color:#e74c3c;';
+                let amountColor = h.amount >= 0 ? 'color:#10b981;' : 'color:#ef4444;';
                 let amountStr = (h.amount >= 0 ? '+' : '') + Number(h.amount).toLocaleString('vi-VN') + 'đ';
                 hHtml += `
                     <div class="history-item">
                         <div>
-                            <div style="font-weight:bold; ${amountColor}">${amountStr} (${esc(h.type)})</div>
-                            <div style="color:#555;">${esc(h.note || 'Không có ghi chú')}</div>
-                            <div style="color:#888; font-size:10px;">${timeStr}</div>
+                            <div style="font-weight:600; ${amountColor}">${amountStr} <span style="font-size:10px; color:#64748b;">(${esc(h.type)})</span></div>
+                            <div style="color:#334155; margin-top:2px;">${esc(h.note || 'Không có ghi chú')}</div>
+                            <div style="color:#94a3b8; font-size:10px; margin-top:2px;">${timeStr}</div>
                         </div>
                     </div>
                 `;
@@ -669,13 +746,11 @@
         if (!currentSelectedMember) return;
         let username = currentSelectedMember.username;
 
-        // Bước 1: Cảnh báo quan trọng lần 1
         let confirmFirst = confirm(`⚠️ CẢNH BÁO QUAN TRỌNG:\n\nBạn có thực sự muốn XÓA VĨNH VIỄN tài khoản @${username} khỏi hệ thống không?\n\nHành động này không thể hoàn tác!`);
         if (!confirmFirst) return;
 
-        // Bước 2: Yêu cầu gõ lại username để xác nhận chắc chắn chống bấm nhầm
         let typedUser = prompt(`Để xác nhận xóa, vui lòng nhập lại chính xác username của thành viên: @${username}`);
-        if (typedUser === null) return; // Người dùng bấm Hủy
+        if (typedUser === null) return;
 
         if (typedUser.trim().replace(/^@/, '') !== username) {
             alert("❌ Xác nhận thất bại! Username bạn nhập không khớp. Đã hủy thao tác xóa.");
