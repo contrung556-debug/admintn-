@@ -23,20 +23,17 @@
         .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.2); }
         .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
         .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; }
-        .member-card { cursor: pointer; }
-        .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
         .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
         .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
         .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; flex-wrap: wrap; gap: 6px; }
-        .member-action-hint { font-size: 11px; color: #e67e22; text-align: right; margin-top: 4px; font-weight: bold; }
         .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
         .badge-green { background: #27ae60; }
         .badge-red { background: #e74c3c; }
         .badge-blue { background: #2980b9; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
         .modal-content { background: #fff; padding: 15px; border-radius: 12px; width: 92%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .sub-acc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 11px; }
+        .sub-acc-item, .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 11px; gap: 8px; }
     </style>
 </head>
 <body>
@@ -112,8 +109,7 @@
         </div>
 
         <div class="section-box">
-            <div class="section-title"><span>👥 Danh Sách Thành Viên & Chi Tiêu</span></div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của khách để cộng/trừ nhanh số dư.</div>
+            <div class="section-title"><span>👥 Danh Sách Thành Viên & Quản Lý</span></div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
@@ -121,6 +117,7 @@
     </div>
 </div>
 
+<!-- Modal Sửa Sản Phẩm -->
 <div id="editProductModal" class="modal">
     <div class="modal-content">
         <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
@@ -151,6 +148,7 @@
     </div>
 </div>
 
+<!-- Modal Xem Chi Tiết Tài Khoản Acc -->
 <div id="viewAccsModal" class="modal">
     <div class="modal-content">
         <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
@@ -159,6 +157,25 @@
         </div>
         <div id="subAccsListContainer" style="margin-bottom: 12px; max-height: 300px; overflow-y: auto;"></div>
         <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('viewAccsModal')">Đóng</button>
+    </div>
+</div>
+
+<!-- Modal Lịch Sử Giao Dịch & Quản Lý Thành Viên -->
+<div id="memberDetailModal" class="modal">
+    <div class="modal-content">
+        <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
+            <span id="memberDetailTitle">👤 Quản Lý Thành Viên</span>
+            <span onclick="closeModal('memberDetailModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
+        </div>
+        <div style="font-size: 12px; margin-bottom: 10px; color: #555;" id="memberDetailMeta"></div>
+        
+        <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #2c3e50;">📜 Lịch sử cộng/trừ tiền (Chỉ xem):</div>
+        <div id="memberHistoryContainer" style="margin-bottom: 15px; max-height: 220px; overflow-y: auto; border: 1px solid #eee; padding: 6px; border-radius: 6px;"></div>
+
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-main btn-green" style="margin-bottom:0; flex:1;" onclick="promptAdjustFromModal()">💰 Cộng/Trừ Tiền</button>
+            <button class="btn-main" style="margin-bottom:0; flex:1; background:#c0392b;" onclick="deleteThisMember()">🗑️ Xóa Tài Khoản</button>
+        </div>
     </div>
 </div>
 
@@ -171,15 +188,14 @@
     let cachedTemplates = [];
     let cachedGroupedProducts = [];
     let adjusting = false;
+    let currentSelectedMember = null;
 
-    // Escape mọi dữ liệu đưa vào innerHTML (chống XSS)
     function esc(s) {
         return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
     checkAdminSession();
 
-    // Chỉ cho vào khi tài khoản có trong bảng admins
     async function verifyAdmin() {
         const { data, error } = await _supabase.rpc('is_admin');
         return !error && data === true;
@@ -514,7 +530,7 @@
     }
 
     async function adjustUserBalance(specificUser = null, specificAmount = null) {
-        if (adjusting) return;   // chặn bấm 2 lần
+        if (adjusting) return;
         let target = (specificUser || document.getElementById("targetUsername").value.trim()).replace(/^@/, '');
         let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
 
@@ -524,7 +540,7 @@
 
         adjusting = true;
         const btn = document.getElementById("btnAdjust");
-        btn.disabled = true;
+        if (btn) btn.disabled = true;
 
         try {
             const { data, error } = await _supabase.rpc('admin_cong_tien', {
@@ -538,23 +554,19 @@
             }
 
             alert(`Đã cập nhật số dư cho @${target}. Số dư mới: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
-            document.getElementById("targetUsername").value = "";
-            document.getElementById("balanceAmount").value = "";
+            if (document.getElementById("targetUsername")) document.getElementById("targetUsername").value = "";
+            if (document.getElementById("balanceAmount")) document.getElementById("balanceAmount").value = "";
+            
             loadMemberList();
+            if (currentSelectedMember && currentSelectedMember.username === target) {
+                openMemberDetail(currentSelectedMember.username);
+            }
         } catch (e) {
             alert("Lỗi kết nối: " + e.message);
         } finally {
             adjusting = false;
-            btn.disabled = false;
+            if (btn) btn.disabled = false;
         }
-    }
-
-    function quickAdjustUser(username) {
-        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${username} (Nhập số âm để trừ tiền):`);
-        if (input === null || input.trim() === "") return;
-        let amount = parseInt(input);
-        if (isNaN(amount)) { alert("Vui lòng nhập một số hợp lệ!"); return; }
-        adjustUserBalance(username, amount);
     }
 
     async function loadMemberList() {
@@ -583,19 +595,92 @@
         let html = '';
         list.forEach(u => {
             let regTime = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Không rõ';
+            let uEsc = esc(u.username);
             html += `
-                <div class="member-card" data-u="${esc(u.username)}" onclick="quickAdjustUser(this.dataset.u)">
-                    <div class="member-top"><div class="member-user">👤 @${esc(u.username)}</div></div>
+                <div class="member-card" data-u="${uEsc}" onclick="openMemberDetail(this.dataset.u)">
+                    <div class="member-top"><div class="member-user">👤 @${uEsc}</div></div>
                     <div class="member-time">⏱️ Đăng ký: ${esc(regTime)}</div>
                     <div class="member-stats">
                         <div>Ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
                         <div>Đã chi: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
                     </div>
-                    <div class="member-action-hint">⚡ Nạp / Trừ tiền</div>
+                    <div style="font-size: 11px; color: #2980b9; text-align: right; margin-top: 4px; font-weight: bold;">🔍 Xem Lịch Sử / Quản Lý</div>
                 </div>
             `;
         });
         container.innerHTML = html;
+    }
+
+    async function openMemberDetail(username) {
+        let u = cachedMembers.find(item => item.username === username);
+        if (!u) return;
+        currentSelectedMember = u;
+
+        document.getElementById("memberDetailTitle").textContent = `👤 @${u.username}`;
+        document.getElementById("memberDetailMeta").innerHTML = `
+            <div>Số dư hiện tại: <b style="color:#27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
+            <div>Tổng tiền đã mua hàng: <b style="color:#e74c3c;">${(u.totalSpend || 0).toLocaleString('vi-VN')}đ</b></div>
+        `;
+
+        // Tải lịch sử giao dịch ví của user để xem (không cho xóa từng dòng)
+        const { data: histories, error } = await _supabase
+            .from('deposit_history')
+            .select('*')
+            .eq('user_id', u.id)
+            .order('created_at', { ascending: false });
+
+        let historyContainer = document.getElementById("memberHistoryContainer");
+        if (error || !histories || histories.length === 0) {
+            historyContainer.innerHTML = "<div style='color:#888; text-align:center; font-size:11px; padding: 10px;'>Chưa có lịch sử giao dịch ví nào.</div>";
+        } else {
+            let hHtml = '';
+            histories.forEach(h => {
+                let timeStr = h.created_at ? new Date(h.created_at).toLocaleString('vi-VN') : '';
+                let amountColor = h.amount >= 0 ? 'color:#27ae60;' : 'color:#e74c3c;';
+                let amountStr = (h.amount >= 0 ? '+' : '') + Number(h.amount).toLocaleString('vi-VN') + 'đ';
+                hHtml += `
+                    <div class="history-item">
+                        <div>
+                            <div style="font-weight:bold; ${amountColor}">${amountStr} (${esc(h.type)})</div>
+                            <div style="color:#555;">${esc(h.note || 'Không có ghi chú')}</div>
+                            <div style="color:#888; font-size:10px;">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            historyContainer.innerHTML = hHtml;
+        }
+
+        document.getElementById("memberDetailModal").style.display = "flex";
+    }
+
+    function promptAdjustFromModal() {
+        if (!currentSelectedMember) return;
+        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${currentSelectedMember.username} (Nhập số âm để trừ tiền):`);
+        if (input === null || input.trim() === "") return;
+        let amount = parseInt(input);
+        if (isNaN(amount) || amount === 0) { alert("Vui lòng nhập số tiền hợp lệ khác 0!"); return; }
+        adjustUserBalance(currentSelectedMember.username, amount);
+    }
+
+    async function deleteThisMember() {
+        if (!currentSelectedMember) return;
+        let username = currentSelectedMember.username;
+
+        if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA TÀI KHOẢN @${username} không?`)) return;
+
+        const { data, error } = await _supabase.rpc('admin_delete_member', {
+            p_target_username: username
+        });
+
+        if (error || (data && !data.success)) {
+            alert("Lỗi khi xóa thành viên: " + (error?.message || data?.message || "Không xác định"));
+            return;
+        }
+
+        alert(`Đã xóa thành công tài khoản @${username}!`);
+        closeModal("memberDetailModal");
+        loadMemberList();
     }
 
     function filterMembers() {
