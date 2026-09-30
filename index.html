@@ -22,7 +22,8 @@
         .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.2); }
         .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.2); }
         .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
-        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; }
+        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; cursor: pointer; }
+        .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
         .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
         .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
@@ -110,6 +111,7 @@
 
         <div class="section-box">
             <div class="section-title"><span>👥 Danh Sách Thành Viên & Quản Lý</span></div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của thành viên để xem lịch sử & quản lý tài khoản.</div>
             <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
             <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
         </div>
@@ -389,7 +391,7 @@
         list.forEach(g => {
             let k = esc(g.groupKey);
             html += `
-                <div class="product-card">
+                <div class="product-card" style="cursor:default;">
                     <div class="product-top">
                         <div class="product-title">
                             <span class="badge badge-blue">${esc(g.platform || 'Khác')}</span>
@@ -553,7 +555,7 @@
                 return;
             }
 
-            alert(`Đã cập nhật số dư cho @${target}. Số dư mới: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
+            alert(`✅ Đã cập nhật số dư cho @${target}. Số dư mới: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
             if (document.getElementById("targetUsername")) document.getElementById("targetUsername").value = "";
             if (document.getElementById("balanceAmount")) document.getElementById("balanceAmount").value = "";
             
@@ -622,7 +624,7 @@
             <div>Tổng tiền đã mua hàng: <b style="color:#e74c3c;">${(u.totalSpend || 0).toLocaleString('vi-VN')}đ</b></div>
         `;
 
-        // Tải lịch sử giao dịch ví của user để xem (không cho xóa từng dòng)
+        // Tải lịch sử giao dịch ví để xem
         const { data: histories, error } = await _supabase
             .from('deposit_history')
             .select('*')
@@ -667,7 +669,18 @@
         if (!currentSelectedMember) return;
         let username = currentSelectedMember.username;
 
-        if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA TÀI KHOẢN @${username} không?`)) return;
+        // Bước 1: Cảnh báo quan trọng lần 1
+        let confirmFirst = confirm(`⚠️ CẢNH BÁO QUAN TRỌNG:\n\nBạn có thực sự muốn XÓA VĨNH VIỄN tài khoản @${username} khỏi hệ thống không?\n\nHành động này không thể hoàn tác!`);
+        if (!confirmFirst) return;
+
+        // Bước 2: Yêu cầu gõ lại username để xác nhận chắc chắn chống bấm nhầm
+        let typedUser = prompt(`Để xác nhận xóa, vui lòng nhập lại chính xác username của thành viên: @${username}`);
+        if (typedUser === null) return; // Người dùng bấm Hủy
+
+        if (typedUser.trim().replace(/^@/, '') !== username) {
+            alert("❌ Xác nhận thất bại! Username bạn nhập không khớp. Đã hủy thao tác xóa.");
+            return;
+        }
 
         const { data, error } = await _supabase.rpc('admin_delete_member', {
             p_target_username: username
@@ -678,7 +691,7 @@
             return;
         }
 
-        alert(`Đã xóa thành công tài khoản @${username}!`);
+        alert(`✅ Đã xóa thành công tài khoản @${username}!`);
         closeModal("memberDetailModal");
         loadMemberList();
     }
