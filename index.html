@@ -193,16 +193,29 @@
 
     checkAdminSession();
 
+    // Kiểm tra trực tiếp user_id trong bảng admins
     async function verifyAdmin() {
-        const { data, error } = await _supabase.rpc('is_admin');
-        return !error && data === true;
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session || !session.user) return false;
+
+        const { data, error } = await _supabase
+            .from('admins')
+            .select('user_id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+        return !error && data !== null;
     }
 
     async function checkAdminSession() {
         const { data: { session } } = await _supabase.auth.getSession();
         if (session && session.user) {
-            if (await verifyAdmin()) showAdminPanel();
-            else { await _supabase.auth.signOut(); logoutAdminUI(); }
+            if (await verifyAdmin()) {
+                showAdminPanel();
+            } else {
+                await _supabase.auth.signOut();
+                logoutAdminUI();
+            }
         } else {
             logoutAdminUI();
         }
