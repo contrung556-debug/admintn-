@@ -193,18 +193,15 @@
 
     checkAdminSession();
 
-    // Kiểm tra trực tiếp user_id trong bảng admins
+    // Ép cứng kiểm tra theo email của bạn
     async function verifyAdmin() {
         const { data: { session } } = await _supabase.auth.getSession();
         if (!session || !session.user) return false;
 
-        const { data, error } = await _supabase
-            .from('admins')
-            .select('user_id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-
-        return !error && data !== null;
+        if (session.user.email === 'hodaccuongkt@gmail.com') {
+            return true;
+        }
+        return false;
     }
 
     async function checkAdminSession() {
@@ -583,9 +580,8 @@
         adjustUserBalance(username, amount);
     }
 
-    // XÓA THÀNH VIÊN
     async function deleteMember(userId, username, event) {
-        event.stopPropagation(); // Không cho kích hoạt sự kiện bấm vào card (tránh hiện bảng nạp tiền)
+        event.stopPropagation();
 
         if (!confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN thành viên @${username} khỏi hệ thống không?`)) {
             return;
@@ -601,7 +597,6 @@
         loadMemberList();
     }
 
-    // XEM LỊCH SỬ NẠP TIỀN
     async function loadDepositHistory() {
         let modal = document.getElementById("depositHistoryModal");
         let container = document.getElementById("depositHistoryContainer");
