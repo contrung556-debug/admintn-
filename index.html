@@ -1,706 +1,617 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopee MMO - Khu Vực Quản Trị Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; font-size: 14px; }
-        .store-header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 12px 15px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
-        .store-name { font-size: 15px; font-weight: bold; }
-        .top-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
-        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
-        .section-box { background: #fff; padding: 14px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e1e8ed; }
-        .section-title { font-size: 14px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fafafa; -webkit-appearance: none; }
-        textarea { resize: vertical; min-height: 80px; }
-        .btn-main { background-color: #e74c3c; color: white; border: none; padding: 11px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 13px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(231,76,60,0.2); }
-        .btn-main:active { opacity: 0.8; }
-        .btn-main:disabled { opacity: 0.5; }
-        .btn-green { background-color: #27ae60 !important; box-shadow: 0 2px 5px rgba(39,174,96,0.2); }
-        .btn-dark { background-color: #34495e !important; box-shadow: 0 2px 5px rgba(52,73,94,0.2); }
-        .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; margin-bottom: 0; display: inline-block; }
-        .member-card, .product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: all 0.2s; cursor: pointer; }
-        .member-card:hover { border-color: #ee4d2d; background: #fff8f5; }
-        .member-top, .product-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .member-user, .product-title { font-weight: bold; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px; }
-        .member-time { font-size: 11px; color: #64748b; margin-bottom: 6px; }
-        .member-stats, .product-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; flex-wrap: wrap; gap: 6px; }
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
-        .badge-green { background: #27ae60; }
-        .badge-red { background: #e74c3c; }
-        .badge-blue { background: #2980b9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background: #fff; padding: 15px; border-radius: 12px; width: 92%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .sub-acc-item, .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 11px; gap: 8px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shopee MMO - Khu Vực Quản Trị Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#eef2fa;--ink:#14224a;--mut:#8590a8;--line:#dfe6f3;--field:#f4f7fd;--navy:#1c2f57;--grad:linear-gradient(90deg,#ff7a2f,#e5254a);--tint:#fff1ee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.3 -apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.top{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;display:flex;align-items:center;gap:8px;border-radius:0 0 22px 22px}
+.bolt{font-size:32px;color:#ffc22e;fill:#ffc22e}
+.top h1{margin:0;font-size:17px}.top small{display:block;font-size:11px;opacity:.8}.t{flex:1;min-width:0}
+.pill{border-radius:12px;padding:9px 11px;color:#fff;font-weight:600;font-size:13px;display:flex;gap:5px;align-items:center;white-space:nowrap;text-decoration:none}
+.pill.o{background:linear-gradient(135deg,#ff7a45,#f2412f)}.pill.r{background:#b23544}
+.wrap{max-width:760px;margin:0 auto;padding:0 12px}
+.card{background:#fff;border-radius:22px;margin-top:14px;padding:16px 14px;box-shadow:0 6px 24px rgba(30,50,100,.08)}
+.hd{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.ico{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#ff7a45,#f2412f);color:#fff;display:grid;place-items:center;font-size:24px;flex:none}
+.ico.soft{background:#ffe8e6;color:#e5393a}
+.hd .tx{flex:1;min-width:170px}.hd h2{margin:0;font-size:19px}.hd p{margin:3px 0 0;color:var(--mut);font-size:13.5px}
+.fld{display:flex;align-items:center;gap:10px;background:var(--field);border:1.5px solid var(--line);border-radius:16px;padding:0 14px;min-height:48px;margin-bottom:10px;width:100%;text-align:left;position:relative}
+.fld>svg{font-size:20px;color:#5f6b86}
+.fld input,.fld select,.fld textarea{flex:1;border:0;background:none;outline:0;padding:12px 0;min-width:0;appearance:none;width:100%}
+.fld textarea{resize:vertical;min-height:90px}.fld.ta{align-items:flex-start;padding-top:2px}.fld.ta>svg{margin-top:14px}
+.fld ::placeholder{color:var(--mut)}.fld:focus-within{border-color:#ee4a47}
+.chev{margin-left:auto;pointer-events:none}.fld select+.chev{position:absolute;right:12px}
+.row{display:flex;gap:10px}
+.btn{border-radius:16px;min-height:50px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 16px}
+.btn.p{background:var(--grad);color:#fff;flex:1.3;box-shadow:0 6px 16px rgba(229,37,74,.3)}
+.btn.s{background:var(--field);border:1.5px solid var(--line);flex:1}
+.btn:disabled{opacity:.5}
+.sm{border-radius:14px;color:#fff;font-weight:600;font-size:13px;padding:10px 14px;display:flex;gap:8px;align-items:center;justify-content:center}
+.sm.a{background:linear-gradient(90deg,#ff5a36,#e5254a)}.sm.b{background:#3c4a68}
+.mbtns{display:flex;flex-direction:column;gap:8px}
+.logo{width:60px;height:60px;border-radius:14px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;text-align:center;flex:none}
+.badge{border-radius:20px;color:#fff;font-weight:700;font-size:13px;padding:5px 12px;text-align:center;white-space:nowrap}
+.g{background:#22a95a}.rd{background:#ee4a47}
+.item{border:1px solid var(--line);border-radius:18px;margin-top:12px;overflow:hidden}
+.item .m{display:flex;gap:12px;padding:14px 14px 10px;align-items:flex-start}
+.item h3{margin:0 0 4px;font-size:16.5px;line-height:1.25}
+.item .d{color:var(--mut);font-size:13.5px;line-height:1.4;white-space:pre-line}
+.stk{display:flex;flex-direction:column;gap:6px}
+.item .f{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 14px;flex-wrap:wrap}
+.price{border:1px solid var(--line);border-radius:12px;padding:6px 10px;color:#e5254a;font-weight:800;font-size:16px}
+.date{flex:1;background:var(--field);border-radius:12px;padding:8px 10px;color:#5f6b86;font-size:12.5px;min-width:110px;white-space:nowrap}
+.ab{border-radius:12px;padding:8px 12px;font-weight:700;font-size:13.5px;display:flex;gap:5px;align-items:center;background:#eef5ff;border:1.5px solid #4a90f5;color:#1e6fe0}
+.ab.d{background:#fff0f2;border-color:#ee6a7c;color:#d6264a}.ab.n{background:var(--field);border-color:var(--line);color:var(--ink)}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;display:flex;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));gap:8px;box-shadow:0 -6px 24px rgba(30,50,100,.12);border-radius:22px 22px 0 0;z-index:5}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:16px;font-weight:600;font-size:13px;color:#5f6b86}
+.nav button svg{font-size:22px}.nav button.on{background:var(--grad);color:#fff;box-shadow:0 6px 14px rgba(229,37,74,.25)}
+.sr{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--field);border-radius:16px;padding:0 14px;min-height:48px}
+.sr input{flex:1;border:0;background:none;outline:0;padding:12px 0;min-width:0}.sr svg{font-size:20px}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:14px 0 4px}
+.chip{border-radius:22px;background:var(--field);padding:10px 16px;white-space:nowrap;font-size:14px;display:flex;gap:8px;align-items:center;border:1px solid var(--line)}
+.chip.on{background:linear-gradient(135deg,#ff6a3a,#e5254a);color:#fff;font-weight:700;border-color:transparent}
+.dot{width:12px;height:12px;border-radius:50%}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:620px){.stats{grid-template-columns:repeat(4,1fr)}}
+.st{border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center}
+.st .c{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:21px;flex:none}
+.st small{font-size:13px;display:block}.st b{font-size:26px;line-height:1.1}
+.s1{background:#eaf2ff}.s1 .c{background:#d3e4ff;color:#2f7de8}.s1 small{color:#2f6fcf}
+.s2{background:#e6f8ee}.s2 .c{background:#c8efd9;color:#1fa65a}.s2 small{color:#178a4a}
+.s3{background:#ffe9e9}.s3 .c{background:#e5254a;color:#fff}.s3 small{color:#d6264a}
+.s4{background:#fff3e2}.s4 .c{background:#ffe2b8;color:#f39a1a}.s4 small{color:#e07b00}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sel{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:14px;padding:0 10px;min-height:44px;position:relative;font-weight:500}
+.sel select{appearance:none;border:0;background:none;outline:0;padding:10px 22px 10px 0;font-weight:500}
+.sel .ch{position:absolute;right:10px;pointer-events:none}
+.mrow{border:1px solid var(--line);border-radius:18px;margin-bottom:10px;padding:14px 12px;display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center;position:relative}
+@media(min-width:560px){.mrow{grid-template-columns:1.3fr .8fr .8fr auto}}
+.u{display:flex;gap:12px;align-items:center;min-width:0}
+.av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:22px;font-weight:600;flex:none}
+.u b{font-size:17px;display:block;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis}
+.u .sub{font-size:13px;color:var(--mut);margin-top:3px}
+.note{background:var(--field);border-radius:8px;padding:2px 8px;cursor:pointer;display:inline-block}
+.money{display:flex;gap:18px;grid-column:1/-1}@media(min-width:560px){.money{display:contents}}
+.mo small{font-size:13px;display:block;margin-bottom:2px;color:var(--mut)}.mo b{font-size:19px;white-space:nowrap}
+.mo.w b{color:#15a05a}.mo.s b{color:#e5254a}.money .mo+.mo{border-left:1px solid var(--line);padding-left:16px}
+.act{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;align-items:flex-start}@media(min-width:560px){.act{grid-column:auto}}
+.stt{display:inline-flex;border-radius:20px;padding:5px 12px;font-weight:600;font-size:14px;color:#fff;position:relative;white-space:nowrap}
+.stt select{position:absolute;inset:0;opacity:0;width:100%}
+.ok{background:#13a85a}.wt{background:#f9b520}.no{background:#e5254a}.off{background:#6f84a8}
+.btns{display:flex;gap:8px}
+.bt{border-radius:12px;padding:10px 14px;font-weight:600;display:flex;gap:6px;align-items:center}
+.bt.v{background:#e4f1ff;color:#1e6fe0}.bt.q{background:var(--field);border:1px solid var(--line)}
+.kb{border:1.5px solid var(--line);border-radius:12px;width:44px;height:42px;font-size:20px;background:#fff}
+.menu{position:absolute;right:8px;top:calc(100% - 6px);z-index:6;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(20,34,74,.25);padding:6px;min-width:190px}
+.menu button{display:block;width:100%;padding:11px 12px;border-radius:10px;font-weight:500;text-align:left}
+.menu button:hover{background:var(--field)}
+.empty{text-align:center;color:var(--mut);padding:24px}
+.ov{position:fixed;inset:0;background:rgba(15,25,50,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.ov.on{display:flex}
+.modal{background:#fff;width:100%;max-width:500px;max-height:92%;overflow:auto;border-radius:24px;padding:16px}
+.modal.big{max-width:960px;display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:820px){.modal.big{grid-template-columns:1fr 1fr}}
+.mh{display:flex;align-items:center;gap:10px;margin-bottom:10px}.mh h2{margin:0;font-size:19px;flex:1}
+.x{font-size:24px;color:var(--ink)}
+label{display:block;font-weight:700;font-size:14px;margin:10px 0 6px}
+.chip.sm2{padding:8px 14px;font-size:13.5px}
+.tpl{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;cursor:pointer}
+.tpl.on{border-color:#ee4a47;background:var(--tint)}
+.rad{width:24px;height:24px;border-radius:50%;background:var(--line);flex:none;color:#fff;display:grid;place-items:center;font-size:14px}.tpl.on .rad{background:#ee4a47}
+.tpl .tx{flex:1;min-width:0}.tpl b{font-size:15px;line-height:1.25;display:block}.tpl .pr{color:#f26a21;font-weight:700;font-size:14px}
+.sq{width:40px;height:40px;border-radius:12px;background:#fff;border:1.5px solid #8fbaf5;color:#1e6fe0;display:grid;place-items:center;font-size:17px;flex:none}.sq.d{border-color:#f3a0aa;color:#e5254a}
+.edit{border:1px solid var(--line);border-radius:20px;padding:14px;background:#fbfcff}
+.edit .fld{background:#fff;min-height:44px;margin-bottom:0}
+.sub-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;font-size:13px;gap:8px}
+.hist{padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+#loginBox{max-width:420px;margin:30px auto}
+</style>
 </head>
 <body>
 
-<div class="store-header">
-    <div class="store-name">⚡ ADMIN QUẢN TRỊ MMO</div>
-    <div>
-        <a href="index.html" class="top-btn" style="background:#ee4d2d;">← Trang Khách</a>
-        <button class="top-btn" id="btnLogoutAdmin" style="display:none; background:#c0392b;" onclick="logoutAdmin()">Thoát</button>
-    </div>
+<div class="top">
+ <svg class="bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+ <div class="t"><h1>ADMIN QUẢN TRỊ MMO</h1><small>Hệ thống quản lý tài khoản &amp; sản phẩm</small></div>
+ <a href="index.html" class="pill o">← Trang Khách</a>
+ <button class="pill r" id="btnLogoutAdmin" style="display:none" onclick="logoutAdmin()">Thoát</button>
 </div>
 
-<div class="container">
+<div class="wrap">
+ <section class="card" id="adminLoginBox">
+  <div class="hd"><div class="ico">🔐</div><div class="tx"><h2>Đăng Nhập Quản Trị</h2><p>Supabase Auth</p></div></div>
+  <div class="fld"><input type="email" id="adminEmail" placeholder="Email Admin..."></div>
+  <div class="fld"><input type="password" id="adminPass" placeholder="Mật khẩu Admin..."></div>
+  <button class="btn p" style="width:100%" onclick="loginAdminAuth()">Đăng Nhập</button>
+ </section>
 
-    <div class="section-box" id="adminLoginBox">
-        <div class="section-title">🔐 Đăng Nhập Quản Trị (Supabase Auth)</div>
-        <input type="email" id="adminEmail" placeholder="Email Admin...">
-        <input type="password" id="adminPass" placeholder="Mật khẩu Admin...">
-        <button class="btn-main" onclick="loginAdminAuth()">Đăng Nhập</button>
+ <div id="adminDashboard" style="display:none">
+  <!-- TAB SẢN PHẨM -->
+  <div id="tab-products">
+   <section class="card">
+    <div class="hd"><div class="ico">＋</div><div class="tx"><h2>Đăng Bán Tài Khoản Mới</h2><p>Thêm tài khoản mới vào hệ thống nhanh chóng</p></div></div>
+    <button class="fld" onclick="openTplModal()"><span style="font-size:18px">📋</span><span style="color:var(--mut);font-size:16px">Chọn nhanh mẫu đã lưu</span><span class="chev">⌄</span></button>
+    <label class="fld"><span style="font-size:18px">🏪</span><select id="postPlatform" style="font-weight:600"><option>Shopee</option><option>Facebook</option><option>Gmail</option><option>iCloud</option><option>TikTok</option></select><span class="chev" style="color:#ee4a47">⌄</span></label>
+    <div class="fld"><span>💰</span><input type="number" id="postPrice" placeholder="Giá tiền mỗi tài khoản (VNĐ)..."></div>
+    <div class="fld"><span>☰</span><input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (VD: Shopee cổ đã ngâm)..."></div>
+    <div class="fld ta"><span style="margin-top:12px">📄</span><textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea></div>
+    <div class="fld ta"><span style="margin-top:12px">👤</span><textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea></div>
+    <div class="row"><button class="btn p" onclick="postNewAccounts(event)">☁ Đăng Bán Lên Kho</button><button class="btn s" onclick="saveCurrentAsTemplate()">💾 Lưu Mẫu</button></div>
+   </section>
+   <section class="card">
+    <div class="hd"><div class="ico">📦</div><div class="tx"><h2>Quản Lý Sản Phẩm</h2><p>Danh sách tài khoản đã đăng</p></div>
+     <div class="mbtns"><button class="sm a" onclick="clearSoldAccounts()">🧹 Xóa Acc Đã Bán</button><button class="sm b" onclick="loadProductsList()">🔄 Tải lại</button></div></div>
+    <div class="row"><div class="sr" style="flex:2"><span>🔍</span><input type="text" id="searchProductInput" placeholder="Tìm tiêu đề, mô tả..." oninput="filterProducts()"></div>
+     <label class="sel" style="flex:1"><select id="filterPlatform" onchange="filterProducts()"><option value="">Tất cả</option><option>Shopee</option><option>Facebook</option><option>Gmail</option><option>iCloud</option><option>TikTok</option></select><span class="ch">⌄</span></label></div>
+    <div id="productListContainer">Đang tải danh sách sản phẩm...</div>
+   </section>
+  </div>
+
+  <!-- TAB THÀNH VIÊN -->
+  <div id="tab-members" style="display:none">
+   <section class="card">
+    <div class="hd"><div class="ico soft">👥</div><div class="tx"><h2>Danh Sách Thành Viên &amp; Quản Lý</h2><p>Quản lý thành viên, xem lịch sử và thông tin chi tiết tài khoản.</p></div></div>
+    <div class="sr"><span>🔍</span><input type="text" id="searchMemberInput" placeholder="Tìm kiếm tên thành viên, ghi chú..." oninput="filterMembers()"></div>
+    <div class="chips" id="mChips"></div>
+    <div class="stats" id="mStats"></div>
+    <div class="tools">
+     <label class="sel">⇅<select id="mSort" onchange="filterMembers()"><option value="new">Sắp xếp: Mới nhất</option><option value="old">Cũ nhất</option><option value="spent">Chi nhiều nhất</option><option value="wallet">Ví nhiều nhất</option></select><span class="ch">⌄</span></label>
+     <label class="sel">📅<select id="mTime" onchange="filterMembers()"><option value="0">Tất cả thời gian</option><option value="7">7 ngày qua</option><option value="30">30 ngày qua</option></select><span class="ch">⌄</span></label>
+     <button class="sel" style="margin-left:auto" onclick="exportMembers()">📊 Xuất Excel</button>
     </div>
-
-    <div id="adminDashboard" style="display: none;">
-
-        <div class="section-box">
-            <div class="section-title"><span>➕ Đăng Bán Tài Khoản Mới</span></div>
-            <select id="templateSelector" onchange="applyTemplate()" style="background: #eef2f7; font-weight: bold; color: #2c3e50;">
-                <option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>
-            </select>
-            <select id="postPlatform">
-                <option value="Shopee">Shopee</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Gmail">Gmail</option>
-                <option value="iCloud">iCloud</option>
-                <option value="TikTok">TikTok</option>
-            </select>
-            <input type="number" id="postPrice" placeholder="Giá tiền mỗi tài khoản (VNĐ)...">
-            <input type="text" id="postTitle" placeholder="Tiêu đề hiển thị (VD: Shopee cổ đã ngâm)...">
-            <textarea id="postDesc" placeholder="Mô tả thông tin sản phẩm, bảo hành..."></textarea>
-            <textarea id="postAccounts" placeholder="Danh sách tài khoản (Mỗi dòng 1 acc dạng: user|pass|ghi_chú)..."></textarea>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn-main" style="flex: 2; margin-bottom: 0;" onclick="postNewAccounts(event)">Đăng Bán Lên Kho</button>
-                <button class="btn-main btn-dark" style="flex: 1; margin-bottom: 0;" onclick="saveCurrentAsTemplate()">💾 Lưu Mẫu</button>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <div class="section-title">
-                <span>📦 Quản Lý Sản Phẩm</span>
-                <div>
-                    <button class="top-btn" style="background:#c0392b; margin-right:4px;" onclick="clearSoldAccounts()">🧹 Xóa Acc Đã Bán</button>
-                    <button class="top-btn" style="background:#34495e;" onclick="loadProductsList()">🔄 Tải lại</button>
-                </div>
-            </div>
-            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                <input type="text" id="searchProductInput" placeholder="🔍 Tìm tiêu đề..." oninput="filterProducts()" style="margin-bottom:0; flex:2;">
-                <select id="filterPlatform" onchange="filterProducts()" style="margin-bottom:0; flex:1;">
-                    <option value="">Tất cả</option>
-                    <option value="Shopee">Shopee</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Gmail">Gmail</option>
-                    <option value="iCloud">iCloud</option>
-                    <option value="TikTok">TikTok</option>
-                </select>
-            </div>
-            <div id="productListContainer" style="margin-top: 10px;">Đang tải danh sách sản phẩm...</div>
-        </div>
-
-        <div class="section-box">
-            <div class="section-title"><span>💰 Cộng / Trừ Số Dư Ví Khách</span></div>
-            <input type="text" id="targetUsername" placeholder="Nhập Username của khách..." autocapitalize="none" autocorrect="off">
-            <input type="number" id="balanceAmount" placeholder="Số tiền (VD: 50000 hoặc -20000)...">
-            <button class="btn-main btn-green" id="btnAdjust" onclick="adjustUserBalance()">Cập Nhật Số Dư</button>
-        </div>
-
-        <div class="section-box">
-            <div class="section-title"><span>👥 Danh Sách Thành Viên & Quản Lý</span></div>
-            <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">💡 Chạm vào thẻ của thành viên để xem lịch sử & quản lý tài khoản.</div>
-            <input type="text" id="searchMemberInput" placeholder="🔍 Tìm kiếm tên thành viên..." oninput="filterMembers()">
-            <div id="memberListContainer" style="margin-top: 8px;">Đang tải danh sách...</div>
-        </div>
-
-    </div>
+    <div id="memberListContainer">Đang tải danh sách...</div>
+   </section>
+  </div>
+ </div>
 </div>
 
-<!-- Modal Sửa Sản Phẩm -->
-<div id="editProductModal" class="modal">
-    <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 12px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span>✏️ Sửa Sản Phẩm Nhóm</span>
-            <span onclick="closeModal('editProductModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
-        </div>
-        <input type="hidden" id="editGroupKey">
-        <label style="font-size: 11px; font-weight: bold;">Nền tảng:</label>
-        <select id="editPlatform">
-            <option value="Shopee">Shopee</option>
-            <option value="Facebook">Facebook</option>
-            <option value="Gmail">Gmail</option>
-            <option value="iCloud">iCloud</option>
-            <option value="TikTok">TikTok</option>
-        </select>
-        <label style="font-size: 11px; font-weight: bold;">Tiêu đề sản phẩm:</label>
-        <input type="text" id="editTitle" placeholder="Nhập tiêu đề...">
-        <label style="font-size: 11px; font-weight: bold;">Giá bán (VNĐ):</label>
-        <input type="number" id="editPrice" placeholder="Nhập giá...">
-        <label style="font-size: 11px; font-weight: bold;">Mô tả sản phẩm:</label>
-        <textarea id="editDesc" placeholder="Nhập mô tả..."></textarea>
-        <label style="font-size: 11px; font-weight: bold; color: #27ae60;">➕ Nhập thêm tài khoản vào nhóm này (Mỗi dòng 1 acc):</label>
-        <textarea id="addMoreAccounts" placeholder="user|pass|ghi_chú..."></textarea>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button class="btn-main btn-green" style="margin-bottom:0;" onclick="saveGroupEdit()">💾 Cập Nhật Tất Cả</button>
-            <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('editProductModal')">Hủy</button>
-        </div>
-    </div>
-</div>
+<nav class="nav" id="navBar" style="display:none">
+ <button class="on" data-tab="products" onclick="switchTab('products')"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.500v9L12 21l-8-4.500v-9zM4 7.500l8 4.500 8-4.500M12 12v9"/></svg>Sản phẩm</button>
+ <button data-tab="members" onclick="switchTab('members')"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M17 5a3 3 0 0 1 0 6M22 20c0-3-2-5-4-5.500"/></svg>Thành viên</button>
+</nav>
 
-<!-- Modal Xem Chi Tiết Tài Khoản Acc -->
-<div id="viewAccsModal" class="modal">
-    <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span id="viewAccsTitle">📋 Danh Sách Tài Khoản</span>
-            <span onclick="closeModal('viewAccsModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
-        </div>
-        <div id="subAccsListContainer" style="margin-bottom: 12px; max-height: 300px; overflow-y: auto;"></div>
-        <button class="btn-main btn-dark" style="margin-bottom:0;" onclick="closeModal('viewAccsModal')">Đóng</button>
-    </div>
-</div>
+<!-- Modal chọn / sửa mẫu -->
+<div id="tplModal" class="ov"><div class="modal big">
+ <div>
+  <div class="mh"><div class="ico">📄</div><div style="flex:1"><h2>Chọn mẫu đã lưu</h2><div style="font-size:13px;color:var(--mut)">Chọn mẫu để tự động điền thông tin</div></div><button class="x" onclick="closeModal('tplModal')">✕</button></div>
+  <div class="row" style="margin-bottom:10px"><div class="sr" style="flex:1;min-height:44px"><span>🔍</span><input id="tplSearch" placeholder="Tìm kiếm mẫu..." oninput="renderTpls()"></div><button class="btn p" style="min-height:44px;flex:none;font-size:14px" onclick="newTemplate()">＋ Tạo mẫu mới</button></div>
+  <div class="chips" id="tplChips" style="padding-top:0"></div>
+  <div id="tplList"></div>
+ </div>
+ <div class="edit">
+  <div class="mh"><div class="ico" style="width:42px;height:42px;font-size:20px">✏️</div><div style="flex:1"><h2 style="font-size:18px">Chỉnh sửa mẫu</h2><div style="font-size:13px;color:var(--mut)">Cập nhật thông tin mẫu đã lưu</div></div></div>
+  <input type="hidden" id="tId">
+  <label style="margin-top:0">Tên mẫu *</label><div class="fld"><input id="tName"></div>
+  <label>Loại sản phẩm *</label><div class="fld"><select id="tPlatform"><option>Shopee</option><option>Facebook</option><option>Gmail</option><option>iCloud</option><option>TikTok</option></select><span class="chev">⌄</span></div>
+  <label>Giá tiền *</label><div class="fld"><input type="number" id="tPrice"><span style="color:var(--mut)">VNĐ</span></div>
+  <label>Tiêu đề hiển thị *</label><div class="fld"><input id="tTitle"></div>
+  <label>Mô tả thông tin sản phẩm, bảo hành *</label><div class="fld"><textarea id="tDesc"></textarea></div>
+  <label>Định dạng danh sách tài khoản * <span title="Mỗi dòng 1 acc, các phần cách nhau bằng dấu |. VD: user|pass|ghi_chú" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#6b7a99;color:#fff;font-size:13px;margin-left:6px;cursor:help" onclick="alert('Mỗi dòng 1 acc, các phần cách nhau bằng dấu |.\nVD: user|pass|ghi_chú\nĐịnh dạng này sẽ hiện làm gợi ý trong ô nhập danh sách tài khoản khi chọn mẫu.')">?</span></label><div class="fld"><textarea id="tFmt" style="min-height:64px" placeholder="user|pass|ghi_chú"></textarea></div>
+  <div class="row" style="margin-top:14px"><button class="btn s" onclick="closeModal('tplModal')">Hủy</button><button class="btn p" style="flex:2" onclick="saveTemplateEdit()">💾 Lưu thay đổi</button></div>
+ </div>
+</div></div>
 
-<!-- Modal Lịch Sử Giao Dịch & Quản Lý Thành Viên -->
-<div id="memberDetailModal" class="modal">
-    <div class="modal-content">
-        <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2c3e50; display:flex; justify-content:space-between; align-items:center;">
-            <span id="memberDetailTitle">👤 Quản Lý Thành Viên</span>
-            <span onclick="closeModal('memberDetailModal')" style="cursor:pointer; font-size: 20px; color:#888;">&times;</span>
-        </div>
-        <div style="font-size: 12px; margin-bottom: 10px; color: #555;" id="memberDetailMeta"></div>
-        
-        <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #2c3e50;">📜 Lịch sử cộng/trừ tiền (Chỉ xem):</div>
-        <div id="memberHistoryContainer" style="margin-bottom: 15px; max-height: 220px; overflow-y: auto; border: 1px solid #eee; padding: 6px; border-radius: 6px;"></div>
+<!-- Modal sửa sản phẩm -->
+<div id="editProductModal" class="ov"><div class="modal">
+ <div class="mh"><h2>✏️ Sửa Sản Phẩm Nhóm</h2><button class="x" onclick="closeModal('editProductModal')">✕</button></div>
+ <input type="hidden" id="editGroupKey">
+ <label>Nền tảng</label><div class="fld"><select id="editPlatform"><option>Shopee</option><option>Facebook</option><option>Gmail</option><option>iCloud</option><option>TikTok</option></select><span class="chev">⌄</span></div>
+ <label>Tiêu đề sản phẩm</label><div class="fld"><input id="editTitle" placeholder="Nhập tiêu đề..."></div>
+ <label>Giá bán (VNĐ)</label><div class="fld"><input type="number" id="editPrice" placeholder="Nhập giá..."></div>
+ <label>Mô tả sản phẩm</label><div class="fld"><textarea id="editDesc" placeholder="Nhập mô tả..."></textarea></div>
+ <label style="color:#27ae60">➕ Nhập thêm tài khoản vào nhóm này (Mỗi dòng 1 acc)</label><div class="fld"><textarea id="addMoreAccounts" placeholder="user|pass|ghi_chú..."></textarea></div>
+ <div class="row" style="margin-top:12px"><button class="btn s" onclick="closeModal('editProductModal')">Hủy</button><button class="btn p" style="flex:2" onclick="saveGroupEdit()">💾 Cập Nhật Tất Cả</button></div>
+</div></div>
 
-        <div style="display: flex; gap: 8px;">
-            <button class="btn-main btn-green" style="margin-bottom:0; flex:1;" onclick="promptAdjustFromModal()">💰 Cộng/Trừ Tiền</button>
-            <button class="btn-main" style="margin-bottom:0; flex:1; background:#c0392b;" onclick="deleteThisMember()">🗑️ Xóa Tài Khoản</button>
-        </div>
-    </div>
-</div>
+<!-- Modal chi tiết acc -->
+<div id="viewAccsModal" class="ov"><div class="modal">
+ <div class="mh"><h2 id="viewAccsTitle">📋 Danh Sách Tài Khoản</h2><button class="x" onclick="closeModal('viewAccsModal')">✕</button></div>
+ <div id="subAccsListContainer" style="max-height:340px;overflow-y:auto;margin-bottom:12px"></div>
+ <button class="btn s" style="width:100%" onclick="closeModal('viewAccsModal')">Đóng</button>
+</div></div>
+
+<!-- Modal thành viên -->
+<div id="memberDetailModal" class="ov"><div class="modal">
+ <div class="mh"><h2 id="memberDetailTitle">👤 Quản Lý Thành Viên</h2><button class="x" onclick="closeModal('memberDetailModal')">✕</button></div>
+ <div style="font-size:13px;margin-bottom:10px" id="memberDetailMeta"></div>
+ <div style="font-weight:700;margin-bottom:6px">📜 Lịch sử cộng/trừ tiền (Chỉ xem):</div>
+ <div id="memberHistoryContainer" style="max-height:240px;overflow-y:auto;border:1px solid var(--line);padding:6px 10px;border-radius:12px;margin-bottom:14px"></div>
+ <div class="row"><button class="btn p" style="background:#27ae60;box-shadow:none" onclick="promptAdjustFromModal()">💰 Cộng/Trừ Tiền</button><button class="btn p" style="background:#c0392b;box-shadow:none" onclick="deleteThisMember()">🗑️ Xóa Tài Khoản</button></div>
+</div></div>
 
 <script>
-    const SUPABASE_URL = "https://hsdbjzkxbdezysxwwtaw.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://hsdbjzkxbdezysxwwtaw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LIeDI4UVn7MEo5vURP05hA_TM4h0vFd";
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let cachedMembers = [];
-    let cachedTemplates = [];
-    let cachedGroupedProducts = [];
-    let adjusting = false;
-    let currentSelectedMember = null;
+let cachedMembers = [], cachedTemplates = [], cachedGroupedProducts = [];
+let adjusting = false, currentSelectedMember = null, mFilter = 'all', openMenu = null, tplFilter = 'Tất cả', tplSel = null;
+const PCOL = {Shopee:'#ee4d2d', Facebook:'#1877f2', Gmail:'#ea4335', iCloud:'#1e90ff', TikTok:'#16161f'};
+const AVC = ['#f0508a','#4a8ef0','#7a4be0','#f08a3a','#3cc48a','#ff6b7a'];
+const STT = {on:['Đang hoạt động','ok'], wait:['Chờ kiểm tra','wt'], off:['Ngừng hoạt động','no'], idle:['Không hoạt động','off']};
+const fmt = n => Number(n || 0).toLocaleString('vi-VN') + 'đ';
+const $ = id => document.getElementById(id);
 
-    function esc(s) {
-        return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function logoHtml(p) { return `<div class="logo" style="background:${PCOL[p] || '#64748b'}">${esc(p || 'Khác')}</div>`; }
+function closeModal(id) { $(id).classList.remove('on'); }
+function openModal(id) { $(id).classList.add('on'); }
+function switchTab(t) {
+    $('tab-products').style.display = t === 'products' ? 'block' : 'none';
+    $('tab-members').style.display = t === 'members' ? 'block' : 'none';
+    document.querySelectorAll('#navBar button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+    window.scrollTo({top: 0});
+}
+
+checkAdminSession();
+
+async function verifyAdmin() { const { data, error } = await _supabase.rpc('is_admin'); return !error && data === true; }
+async function checkAdminSession() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session && session.user) {
+        if (await verifyAdmin()) showAdminPanel(); else { await _supabase.auth.signOut(); logoutAdminUI(); }
+    } else logoutAdminUI();
+}
+async function loginAdminAuth() {
+    let email = $("adminEmail").value.trim(), pass = $("adminPass").value.trim();
+    if (!email || !pass) { alert("Vui lòng nhập đầy đủ Email và Mật khẩu!"); return; }
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) { alert("Đăng nhập thất bại: " + error.message); return; }
+    if (data.session) {
+        if (!(await verifyAdmin())) { await _supabase.auth.signOut(); alert("Tài khoản này không có quyền quản trị!"); return; }
+        alert("Đăng nhập quản trị thành công!");
+        showAdminPanel();
     }
+}
+async function logoutAdmin() { await _supabase.auth.signOut(); logoutAdminUI(); }
+function logoutAdminUI() {
+    $("adminLoginBox").style.display = "block"; $("adminDashboard").style.display = "none";
+    $("btnLogoutAdmin").style.display = "none"; $("navBar").style.display = "none";
+}
+function showAdminPanel() {
+    $("adminLoginBox").style.display = "none"; $("adminDashboard").style.display = "block";
+    $("btnLogoutAdmin").style.display = "flex"; $("navBar").style.display = "flex";
+    loadMemberList(); loadTemplates(); loadProductsList();
+}
 
-    checkAdminSession();
+/* ===== ĐĂNG BÁN ===== */
+async function postNewAccounts(event) {
+    let platform = $("postPlatform").value, price = parseInt($("postPrice").value);
+    let title = $("postTitle").value.trim(), desc = $("postDesc").value.trim(), rawAccs = $("postAccounts").value.trim();
+    if (isNaN(price) || price < 0 || !rawAccs) { alert("Vui lòng nhập giá hợp lệ và danh sách tài khoản!"); return; }
+    let lines = rawAccs.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) { alert("Danh sách tài khoản trống!"); return; }
+    let btnEl = event.currentTarget, oldText = btnEl.innerText;
+    btnEl.disabled = true; btnEl.innerText = "⏳ Đang đăng bán...";
+    const { data, error } = await _supabase.rpc('dang_ban_tai_khoan', {
+        p_platform: platform, p_price: price, p_title: title || `${platform} tài khoản`,
+        p_description: desc || 'Không có mô tả.', p_details_array: lines
+    });
+    btnEl.disabled = false; btnEl.innerText = oldText;
+    if (error || (data && !data.success)) { alert("Lỗi khi đăng bài: " + (error?.message || data?.message || "Không xác định")); return; }
+    alert(`Đã đăng thành công ${lines.length} tài khoản lên kho!`);
+    $("postAccounts").value = "";
+    loadProductsList();
+}
 
-    async function verifyAdmin() {
-        const { data, error } = await _supabase.rpc('is_admin');
-        return !error && data === true;
+/* ===== MẪU ===== */
+async function saveCurrentAsTemplate() {
+    let platform = $("postPlatform").value, price = parseInt($("postPrice").value) || 0;
+    let title = $("postTitle").value.trim(), desc = $("postDesc").value.trim();
+    if (!title && !desc) { alert("Vui lòng nhập ít nhất Tiêu đề hoặc Mô tả để lưu mẫu!"); return; }
+    let name = title || `${platform} (${price}đ)`;
+    const { error } = await _supabase.from('post_templates').insert([{ name, platform, price, title, description: desc, account_format: $("postAccounts").dataset.fmt || DEF_FMT }]);
+    if (error) { alert("Lỗi khi lưu mẫu: " + error.message); return; }
+    alert(`Đã lưu mẫu "${name}" thành công!`);
+    loadTemplates();
+}
+async function loadTemplates() {
+    const { data, error } = await _supabase.from('post_templates').select('*').order('created_at', { ascending: false });
+    if (error) return;
+    cachedTemplates = data || [];
+    if ($("tplModal").classList.contains('on')) renderTpls();
+}
+function openTplModal() {
+    if (!cachedTemplates.some(t => t.id === tplSel)) tplSel = cachedTemplates[0]?.id ?? null;
+    openModal('tplModal'); renderTpls(); loadTplEdit(tplSel);
+}
+function renderTpls() {
+    const cnt = p => cachedTemplates.filter(t => t.platform === p).length;
+    const plats = [...new Set(cachedTemplates.map(t => t.platform))];
+    $("tplChips").innerHTML = ['Tất cả', ...plats].map(k =>
+        `<button class="chip sm2 ${tplFilter === k ? 'on' : ''}" data-c="${esc(k)}">${esc(k)} (${k === 'Tất cả' ? cachedTemplates.length : cnt(k)})</button>`).join('');
+    const q = $("tplSearch").value.toLowerCase().trim();
+    const list = cachedTemplates.filter(t => (tplFilter === 'Tất cả' || t.platform === tplFilter) && (t.name || '').toLowerCase().includes(q));
+    $("tplList").innerHTML = list.map(t => `
+        <div class="tpl ${t.id === tplSel ? 'on' : ''}" data-s="${esc(t.id)}">
+            <span class="rad">${t.id === tplSel ? '✓' : ''}</span>
+            <div class="logo" style="width:52px;height:52px;background:${PCOL[t.platform] || '#64748b'};font-size:11px">${esc(t.platform)}</div>
+            <div class="tx"><b>${esc(t.name)}</b><span class="pr">${fmt(t.price)}</span></div>
+            <button class="sq" data-te="${esc(t.id)}" aria-label="Sửa">✎</button>
+            <button class="sq d" data-td="${esc(t.id)}" aria-label="Xóa">🗑</button>
+        </div>`).join('') || '<div class="empty">Chưa có mẫu nào.</div>';
+}
+$("tplChips").onclick = e => { const c = e.target.closest('[data-c]'); if (c) { tplFilter = c.dataset.c; renderTpls(); } };
+$("tplList").onclick = e => {
+    const te = e.target.closest('[data-te]'), td = e.target.closest('[data-td]'), s = e.target.closest('[data-s]');
+    if (te) { tplSel = te.dataset.te; loadTplEdit(tplSel); renderTpls(); return; }
+    if (td) { deleteTemplate(td.dataset.td); return; }
+    if (s) { tplSel = s.dataset.s; applyTemplate(tplSel); loadTplEdit(tplSel); renderTpls(); }
+};
+const findTpl = id => cachedTemplates.find(t => String(t.id) === String(id));
+function loadTplEdit(id) {
+    const t = findTpl(id); if (!t) return;
+    $("tId").value = t.id; $("tName").value = t.name || ""; $("tPlatform").value = t.platform || "Shopee";
+    $("tPrice").value = t.price || ""; $("tTitle").value = t.title || ""; $("tDesc").value = t.description || "";
+    $("tFmt").value = t.account_format || DEF_FMT;
+}
+const DEF_FMT = 'user|pass|ghi_chú';
+function setAccFormat(f) {
+    f = (f || DEF_FMT).trim() || DEF_FMT;
+    const el = $("postAccounts"); el.dataset.fmt = f;
+    el.placeholder = `Danh sách tài khoản (Mỗi dòng 1 acc dạng: ${f})...`;
+}
+function applyTemplate(id) {
+    const t = findTpl(id); if (!t) return;
+    $("postPlatform").value = t.platform || "Shopee"; $("postPrice").value = t.price || "";
+    $("postTitle").value = t.title || ""; $("postDesc").value = t.description || "";
+    setAccFormat(t.account_format);
+}
+async function saveTemplateEdit() {
+    const id = $("tId").value; if (!id) return;
+    const name = $("tName").value.trim(), title = $("tTitle").value.trim(), fmtv = $("tFmt").value.trim();
+    if (!name || !title || !fmtv) { alert("Vui lòng nhập Tên mẫu, Tiêu đề và Định dạng danh sách tài khoản!"); return; }
+    const { error } = await _supabase.from('post_templates').update({
+        name, platform: $("tPlatform").value, price: parseInt($("tPrice").value) || 0, title, description: $("tDesc").value.trim(), account_format: fmtv
+    }).eq('id', id);
+    if (error) { alert("Lỗi khi lưu mẫu: " + error.message); return; }
+    await loadTemplates(); applyTemplate(id); closeModal('tplModal');
+}
+async function deleteTemplate(id) {
+    if (!confirm("Xóa mẫu này?")) return;
+    const { error } = await _supabase.from('post_templates').delete().eq('id', id);
+    if (error) { alert("Lỗi khi xóa mẫu: " + error.message); return; }
+    tplSel = null; await loadTemplates(); tplSel = cachedTemplates[0]?.id ?? null; renderTpls(); loadTplEdit(tplSel);
+}
+async function newTemplate() {
+    const { data, error } = await _supabase.from('post_templates').insert([{ name: 'Mẫu mới', platform: 'Shopee', price: 0, title: 'Mẫu mới', description: '', account_format: DEF_FMT }]).select();
+    if (error) { alert("Lỗi khi tạo mẫu: " + error.message); return; }
+    await loadTemplates(); tplSel = data?.[0]?.id ?? cachedTemplates[0]?.id; renderTpls(); loadTplEdit(tplSel); $("tName").select();
+}
+
+/* ===== SẢN PHẨM ===== */
+async function loadProductsList() {
+    const container = $("productListContainer");
+    container.innerHTML = "Đang tải và gom nhóm sản phẩm...";
+    const { data, error } = await _supabase.from('mmo_accounts')
+        .select('id, platform, price, title, description, buyer_username, created_at').order('created_at', { ascending: false });
+    if (error) { container.textContent = "Lỗi khi tải sản phẩm: " + error.message; return; }
+    let groupMap = {};
+    (data || []).forEach(item => {
+        let key = `${item.platform || ''}_${(item.title || '').trim().toLowerCase()}_${item.price || 0}`;
+        if (!groupMap[key]) groupMap[key] = { groupKey: key, platform: item.platform, title: item.title, price: item.price, description: item.description, createdAt: item.created_at, totalCount: 0, availableCount: 0, soldCount: 0, items: [] };
+        const g = groupMap[key];
+        g.items.push(item); g.totalCount++;
+        if (item.buyer_username) g.soldCount++; else g.availableCount++;
+    });
+    cachedGroupedProducts = Object.values(groupMap);
+    filterProducts();
+}
+function filterProducts() {
+    let kw = $("searchProductInput").value.toLowerCase().trim(), platform = $("filterPlatform").value;
+    renderGroupedProducts(cachedGroupedProducts.filter(g =>
+        (!kw || (g.title || '').toLowerCase().includes(kw) || (g.description || '').toLowerCase().includes(kw)) && (!platform || g.platform === platform)));
+}
+function renderGroupedProducts(list) {
+    let c = $("productListContainer");
+    if (!list || !list.length) { c.innerHTML = "<div class='empty'>Không tìm thấy sản phẩm nào.</div>"; return; }
+    c.innerHTML = list.map(g => {
+        let k = esc(g.groupKey);
+        let dt = g.createdAt ? new Date(g.createdAt).toLocaleString('vi-VN') : '';
+        return `<div class="item">
+            <div class="m">${logoHtml(g.platform)}
+                <div style="flex:1;min-width:0"><h3>${esc(g.title || 'Không có tiêu đề')}</h3><div class="d">${esc(g.description || 'Không có mô tả.')}</div></div>
+                <div class="stk"><span class="badge g">Còn: ${g.availableCount}</span><span class="badge rd">Đã bán: ${g.soldCount}</span></div>
+            </div>
+            <div class="f"><span class="price">${fmt(g.price)}</span><span class="date">📅 ${esc(dt)}</span>
+                <button class="ab n" data-k="${k}" onclick="openViewAccsModal(this.dataset.k)">📋 (${g.totalCount})</button>
+                <button class="ab" data-k="${k}" onclick="openGroupEditModal(this.dataset.k)">✎ Sửa</button>
+                <button class="ab d" data-k="${k}" onclick="deleteGroup(this.dataset.k)">🗑 Xóa</button></div>
+        </div>`;
+    }).join('');
+}
+function openViewAccsModal(groupKey) {
+    let g = cachedGroupedProducts.find(i => i.groupKey === groupKey); if (!g) return;
+    $("viewAccsTitle").textContent = `📋 Danh Sách Acc: ${g.title}`;
+    $("subAccsListContainer").innerHTML = g.items.map((acc, idx) => {
+        let st = acc.buyer_username ? `<b style="color:#e74c3c">Đã bán (@${esc(acc.buyer_username)})</b>` : `<b style="color:#27ae60">Còn hàng</b>`;
+        let d = acc.created_at ? new Date(acc.created_at).toLocaleDateString('vi-VN') : '';
+        return `<div class="sub-item"><div><b>#${idx + 1}</b> - ${st} <span style="color:#888">(${esc(d)})</span></div>
+            <button class="ab d" data-id="${esc(acc.id)}" onclick="deleteSingleAcc(this.dataset.id)">Xóa</button></div>`;
+    }).join('');
+    openModal("viewAccsModal");
+}
+async function deleteSingleAcc(accId) {
+    if (!confirm("Bạn có chắc muốn xóa 1 acc này không?")) return;
+    const { error } = await _supabase.from('mmo_accounts').delete().eq('id', accId);
+    if (error) { alert("Lỗi khi xóa: " + error.message); return; }
+    alert("Xóa thành công!"); closeModal("viewAccsModal"); loadProductsList();
+}
+function openGroupEditModal(groupKey) {
+    let g = cachedGroupedProducts.find(i => i.groupKey === groupKey); if (!g) return;
+    $("editGroupKey").value = g.groupKey; $("editPlatform").value = g.platform || "Shopee";
+    $("editTitle").value = g.title || ""; $("editPrice").value = g.price || 0;
+    $("editDesc").value = g.description || ""; $("addMoreAccounts").value = "";
+    openModal("editProductModal");
+}
+async function saveGroupEdit() {
+    let g = cachedGroupedProducts.find(i => i.groupKey === $("editGroupKey").value); if (!g) return;
+    let newPlatform = $("editPlatform").value, newTitle = $("editTitle").value.trim(), newPrice = parseInt($("editPrice").value);
+    let newDesc = $("editDesc").value.trim(), moreAccsRaw = $("addMoreAccounts").value.trim();
+    if (!newTitle || isNaN(newPrice)) { alert("Vui lòng nhập đầy đủ Tiêu đề và Giá tiền!"); return; }
+    const { error } = await _supabase.from('mmo_accounts')
+        .update({ platform: newPlatform, title: newTitle, price: newPrice, description: newDesc }).in('id', g.items.map(i => i.id));
+    if (error) { alert("Lỗi khi cập nhật nhóm: " + error.message); return; }
+    if (moreAccsRaw) {
+        let lines = moreAccsRaw.split('\n').map(l => l.trim()).filter(Boolean);
+        if (lines.length) await _supabase.rpc('dang_ban_tai_khoan', { p_platform: newPlatform, p_price: newPrice, p_title: newTitle, p_description: newDesc, p_details_array: lines });
     }
+    alert("Cập nhật thông tin thành công!"); closeModal("editProductModal"); loadProductsList();
+}
+async function deleteGroup(groupKey) {
+    let g = cachedGroupedProducts.find(i => i.groupKey === groupKey); if (!g) return;
+    if (!confirm(`Bạn có chắc muốn XÓA TOÀN BỘ ${g.totalCount} acc thuộc nhóm "${g.title}" này?`)) return;
+    const { error } = await _supabase.from('mmo_accounts').delete().in('id', g.items.map(i => i.id));
+    if (error) { alert("Lỗi khi xóa nhóm: " + error.message); return; }
+    alert("Xóa thành công nhóm sản phẩm!"); loadProductsList();
+}
+async function clearSoldAccounts() {
+    if (!confirm("Bạn có chắc chắn muốn XÓA TẤT CẢ các tài khoản ĐÃ BÁN khỏi cơ sở dữ liệu không? Action này không thể hoàn tác!")) return;
+    const { error } = await _supabase.from('mmo_accounts').delete().not('buyer_username', 'is', null);
+    if (error) { alert("Lỗi khi dọn dẹp tài khoản đã bán: " + error.message); return; }
+    alert("Đã xóa toàn bộ tài khoản đã bán thành công!"); loadProductsList();
+}
 
-    async function checkAdminSession() {
-        const { data: { session } } = await _supabase.auth.getSession();
-        if (session && session.user) {
-            if (await verifyAdmin()) showAdminPanel();
-            else { await _supabase.auth.signOut(); logoutAdminUI(); }
-        } else {
-            logoutAdminUI();
-        }
+/* ===== SỐ DƯ ===== */
+async function adjustUserBalance(specificUser, specificAmount) {
+    if (adjusting) return;
+    let target = String(specificUser || '').replace(/^@/, ''), amount = specificAmount;
+    if (!target || isNaN(amount) || amount === 0) { alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ (khác 0)!"); return; }
+    if (!confirm(`${amount > 0 ? 'Cộng' : 'Trừ'} ${Math.abs(amount).toLocaleString('vi-VN')}đ cho @${target}?`)) return;
+    adjusting = true;
+    try {
+        const { data, error } = await _supabase.rpc('admin_cong_tien', { p_target_username: target, p_amount: amount });
+        if (error || (data && !data.success)) { alert("Lỗi cập nhật: " + (error?.message || data?.message || "Không xác định")); return; }
+        alert(`✅ Đã cập nhật số dư cho @${target}. Số dư mới: ${fmt(data.new_balance)}`);
+        await loadMemberList();
+        if (currentSelectedMember && currentSelectedMember.username === target && $("memberDetailModal").classList.contains('on')) openMemberDetail(target);
+    } catch (e) { alert("Lỗi kết nối: " + e.message); }
+    finally { adjusting = false; }
+}
+
+/* ===== THÀNH VIÊN ===== */
+async function loadMemberList() {
+    const { data: users, error } = await _supabase.from('members').select('*').order('created_at', { ascending: false });
+    if (error) { $("memberListContainer").textContent = "Lỗi tải danh sách thành viên: " + error.message; return; }
+    const { data: purchases } = await _supabase.from('mmo_accounts').select('buyer_username, price').not('buyer_username', 'is', null);
+    let spendMap = {};
+    (purchases || []).forEach(i => { if (i.buyer_username) spendMap[i.buyer_username] = (spendMap[i.buyer_username] || 0) + (i.price || 0); });
+    cachedMembers = (users || []).map(u => ({ ...u, totalSpend: spendMap[u.username] || 0 }));
+    filterMembers();
+}
+const stOf = u => STT[u.status] ? u.status : 'on';
+function filterMembers() {
+    const kw = $("searchMemberInput").value.toLowerCase().trim(), days = +$("mTime").value, sort = $("mSort").value, now = Date.now();
+    let list = cachedMembers.filter(u =>
+        (mFilter === 'all' || stOf(u) === mFilter) &&
+        ((u.username || '').toLowerCase().includes(kw) || (u.note || '').toLowerCase().includes(kw)) &&
+        (!days || (u.created_at && (now - new Date(u.created_at)) / 864e5 <= days)));
+    list.sort((a, b) => sort === 'old' ? new Date(a.created_at) - new Date(b.created_at)
+        : sort === 'spent' ? b.totalSpend - a.totalSpend : sort === 'wallet' ? (b.balance || 0) - (a.balance || 0)
+        : new Date(b.created_at) - new Date(a.created_at));
+    renderMembers(list);
+}
+function renderMembers(list) {
+    const c = k => cachedMembers.filter(u => stOf(u) === k).length;
+    $("mChips").innerHTML = [['all','Tất cả','',cachedMembers.length],['on','Đang hoạt động','#16b05f',c('on')],['off','Ngừng hoạt động','#e5254a',c('off')],['wait','Chờ kiểm tra','#f5a623',c('wait')]]
+        .map(([k, l, col, n]) => `<button class="chip ${mFilter === k ? 'on' : ''}" data-f="${k}">${col ? `<i class="dot" style="background:${col}"></i>` : '☰'} ${l} (${n})</button>`).join('');
+    $("mStats").innerHTML = `
+        <div class="st s1"><span class="c">👥</span><div><small>Tổng thành viên</small><b>${cachedMembers.length}</b></div></div>
+        <div class="st s2"><span class="c">👤</span><div><small>Đang hoạt động</small><b>${c('on')}</b></div></div>
+        <div class="st s3"><span class="c">⏸</span><div><small>Ngừng hoạt động</small><b>${c('off')}</b></div></div>
+        <div class="st s4"><span class="c">🕒</span><div><small>Chờ kiểm tra</small><b>${c('wait')}</b></div></div>`;
+    const box = $("memberListContainer");
+    if (!list.length) { box.innerHTML = '<div class="empty">Không có thành viên nào khớp bộ lọc.</div>'; return; }
+    box.innerHTML = list.map(u => {
+        const un = esc(u.username), st = stOf(u), reg = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Không rõ';
+        const col = AVC[(u.username || 'x').charCodeAt(0) % AVC.length];
+        return `<div class="mrow">
+            <div class="u"><span class="av" style="background:${col}">${esc((u.username || '?')[0].toUpperCase())}</span>
+                <div style="min-width:0"><b>@${un}</b><div class="sub">📅 Đăng ký: ${esc(reg)}</div>
+                <div class="sub"><span class="note" data-n="${un}">📝 ${u.note ? esc(u.note) + ' ✎' : 'Chưa có ghi chú'}</span></div></div></div>
+            <div class="money"><div class="mo w"><small>Ví</small><b>${fmt(u.balance)}</b></div><div class="mo s"><small>Đã chi</small><b>${fmt(u.totalSpend)}</b></div></div>
+            <div class="act"><span class="stt ${STT[st][1]}">${STT[st][0]} ⌄<select data-st="${un}">${Object.entries(STT).map(([k, v]) => `<option value="${k}" ${k === st ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></span>
+                <div class="btns"><button class="bt v" data-u="${un}">🔍 Xem</button><button class="bt q" data-u="${un}">🗄 Quản lý</button><button class="kb" data-k="${un}" aria-label="Thêm">⋮</button></div></div>
+            ${openMenu === u.username ? `<div class="menu">
+                <button data-a="hist" data-u="${un}">🕒 Xem lịch sử</button><button data-a="note" data-u="${un}">✏️ Chỉnh sửa ghi chú</button>
+                <button data-a="add" data-u="${un}">➕ Nạp ví</button><button data-a="sub" data-u="${un}">➖ Trừ ví</button>
+                <button data-a="lock" data-u="${un}">🔒 Tạm khóa</button><button data-a="del" data-u="${un}" style="color:#e5254a">🗑 Xóa thành viên</button></div>` : ''}
+        </div>`;
+    }).join('');
+}
+async function updateMemberField(username, patch) {
+    const u = cachedMembers.find(m => m.username === username); if (!u) return;
+    const { error } = await _supabase.from('members').update(patch).eq('id', u.id);
+    if (error) { alert("Không cập nhật được (bảng members cần có cột " + Object.keys(patch)[0] + "): " + error.message); return; }
+    Object.assign(u, patch); filterMembers();
+}
+document.addEventListener('click', e => {
+    const t = e.target, f = t.closest('[data-f]'), k = t.closest('[data-k]'), a = t.closest('[data-a]'), n = t.closest('[data-n]'), v = t.closest('[data-u]:not([data-a])');
+    if (f) { mFilter = f.dataset.f; openMenu = null; return filterMembers(); }
+    if (k) { openMenu = openMenu === k.dataset.k ? null : k.dataset.k; return filterMembers(); }
+    if (a) {
+        const un = a.dataset.u, ac = a.dataset.a; openMenu = null; filterMembers();
+        if (ac === 'hist') openMemberDetail(un);
+        else if (ac === 'del') { currentSelectedMember = cachedMembers.find(m => m.username === un); deleteThisMember(); }
+        else if (ac === 'lock') { if (confirm(`Tạm khóa @${un}?`)) updateMemberField(un, { status: 'idle' }); }
+        else if (ac === 'note') editNote(un);
+        else { const x = parseInt(prompt(`Số tiền muốn ${ac === 'add' ? 'nạp' : 'trừ'} cho @${un}:`, '10000')); if (x > 0) adjustUserBalance(un, ac === 'add' ? x : -x); }
+        return;
     }
-
-    async function loginAdminAuth() {
-        let email = document.getElementById("adminEmail").value.trim();
-        let pass = document.getElementById("adminPass").value.trim();
-
-        if (!email || !pass) { alert("Vui lòng nhập đầy đủ Email và Mật khẩu!"); return; }
-
-        const { data, error } = await _supabase.auth.signInWithPassword({ email: email, password: pass });
-        if (error) { alert("Đăng nhập thất bại: " + error.message); return; }
-
-        if (data.session) {
-            if (!(await verifyAdmin())) {
-                await _supabase.auth.signOut();
-                alert("Tài khoản này không có quyền quản trị!");
-                return;
-            }
-            alert("Đăng nhập quản trị thành công!");
-            showAdminPanel();
-        }
-    }
-
-    async function logoutAdmin() {
-        await _supabase.auth.signOut();
-        logoutAdminUI();
-    }
-
-    function logoutAdminUI() {
-        document.getElementById("adminLoginBox").style.display = "block";
-        document.getElementById("adminDashboard").style.display = "none";
-        document.getElementById("btnLogoutAdmin").style.display = "none";
-    }
-
-    function showAdminPanel() {
-        document.getElementById("adminLoginBox").style.display = "none";
-        document.getElementById("adminDashboard").style.display = "block";
-        document.getElementById("btnLogoutAdmin").style.display = "inline-block";
-        loadMemberList();
-        loadTemplates();
-        loadProductsList();
-    }
-
-    async function postNewAccounts(event) {
-        let platform = document.getElementById("postPlatform").value;
-        let price = parseInt(document.getElementById("postPrice").value);
-        let title = document.getElementById("postTitle").value.trim();
-        let desc = document.getElementById("postDesc").value.trim();
-        let rawAccs = document.getElementById("postAccounts").value.trim();
-
-        if (isNaN(price) || price < 0 || !rawAccs) { alert("Vui lòng nhập giá hợp lệ và danh sách tài khoản!"); return; }
-
-        let lines = rawAccs.split('\n').map(l => l.trim()).filter(Boolean);
-        if (lines.length === 0) { alert("Danh sách tài khoản trống!"); return; }
-
-        let btnEl = event.target;
-        let oldText = btnEl.innerText;
-        btnEl.disabled = true;
-        btnEl.innerText = "⏳ Đang đăng bán...";
-
-        const { data, error } = await _supabase.rpc('dang_ban_tai_khoan', {
-            p_platform: platform,
-            p_price: price,
-            p_title: title || `${platform} tài khoản`,
-            p_description: desc || 'Không có mô tả.',
-            p_details_array: lines
-        });
-
-        btnEl.disabled = false;
-        btnEl.innerText = oldText;
-
-        if (error || (data && !data.success)) {
-            alert("Lỗi khi đăng bài: " + (error?.message || data?.message || "Không xác định"));
-            return;
-        }
-
-        alert(`Đã đăng thành công ${lines.length} tài khoản lên kho!`);
-        document.getElementById("postAccounts").value = "";
-        loadProductsList();
-    }
-
-    async function saveCurrentAsTemplate() {
-        let platform = document.getElementById("postPlatform").value;
-        let price = parseInt(document.getElementById("postPrice").value) || 0;
-        let title = document.getElementById("postTitle").value.trim();
-        let desc = document.getElementById("postDesc").value.trim();
-
-        if (!title && !desc) { alert("Vui lòng nhập ít nhất Tiêu đề hoặc Mô tả để lưu mẫu!"); return; }
-
-        let templateName = title || `${platform} (${price}đ)`;
-
-        const { error } = await _supabase.from('post_templates').insert([
-            { name: templateName, platform: platform, price: price, title: title, description: desc }
-        ]);
-
-        if (error) { alert("Lỗi khi lưu mẫu: " + error.message); return; }
-
-        alert(`Đã lưu mẫu "${templateName}" thành công!`);
-        loadTemplates();
-    }
-
-    async function loadTemplates() {
-        const { data, error } = await _supabase.from('post_templates').select('*').order('created_at', { ascending: false });
-        if (error) return;
-
-        cachedTemplates = data || [];
-        let selectEl = document.getElementById("templateSelector");
-        if (!selectEl) return;
-
-        selectEl.innerHTML = '<option value="">-- 📋 Chọn nhanh mẫu đã lưu --</option>';
-        cachedTemplates.forEach((t) => {
-            let opt = document.createElement("option");
-            opt.value = t.id;
-            opt.textContent = `📌 ${t.name} (${t.platform} - ${t.price}đ)`;
-            selectEl.appendChild(opt);
-        });
-    }
-
-    function applyTemplate() {
-        let templateId = document.getElementById("templateSelector").value;
-        if (!templateId) return;
-
-        let t = cachedTemplates.find(item => String(item.id) === String(templateId));
-        if (!t) return;
-
-        document.getElementById("postPlatform").value = t.platform || "Shopee";
-        document.getElementById("postPrice").value = t.price || "";
-        document.getElementById("postTitle").value = t.title || "";
-        document.getElementById("postDesc").value = t.description || "";
-    }
-
-    async function loadProductsList() {
-        const container = document.getElementById("productListContainer");
-        container.innerHTML = "Đang tải và gom nhóm sản phẩm...";
-
-        const { data, error } = await _supabase
-            .from('mmo_accounts')
-            .select('id, platform, price, title, description, buyer_username, created_at')
-            .order('created_at', { ascending: false });
-
-        if (error) { container.textContent = "Lỗi khi tải sản phẩm: " + error.message; return; }
-
-        let groupMap = {};
-        (data || []).forEach(item => {
-            let key = `${item.platform || ''}_${(item.title || '').trim().toLowerCase()}_${item.price || 0}`;
-            if (!groupMap[key]) {
-                groupMap[key] = { groupKey: key, platform: item.platform, title: item.title, price: item.price, description: item.description, totalCount: 0, availableCount: 0, soldCount: 0, items: [] };
-            }
-            groupMap[key].items.push(item);
-            groupMap[key].totalCount++;
-            if (item.buyer_username) groupMap[key].soldCount++; else groupMap[key].availableCount++;
-        });
-
-        cachedGroupedProducts = Object.values(groupMap);
-        filterProducts();
-    }
-
-    function filterProducts() {
-        let kw = document.getElementById("searchProductInput").value.toLowerCase().trim();
-        let platform = document.getElementById("filterPlatform").value;
-
-        let filtered = cachedGroupedProducts.filter(group => {
-            let matchesKw = !kw || (group.title && group.title.toLowerCase().includes(kw)) || (group.description && group.description.toLowerCase().includes(kw));
-            let matchesPlatform = !platform || group.platform === platform;
-            return matchesKw && matchesPlatform;
-        });
-
-        renderGroupedProducts(filtered);
-    }
-
-    function renderGroupedProducts(list) {
-        let container = document.getElementById("productListContainer");
-        if (!list || list.length === 0) {
-            container.innerHTML = "<div style='text-align:center; color:#888; font-size:12px;'>Không tìm thấy sản phẩm nào.</div>";
-            return;
-        }
-
-        let html = '';
-        list.forEach(g => {
-            let k = esc(g.groupKey);
-            html += `
-                <div class="product-card" style="cursor:default;">
-                    <div class="product-top">
-                        <div class="product-title">
-                            <span class="badge badge-blue">${esc(g.platform || 'Khác')}</span>
-                            ${esc(g.title || 'Không có tiêu đề')}
-                        </div>
-                        <div>
-                            <span class="badge badge-green">Còn: ${g.availableCount}</span>
-                            <span class="badge badge-red">Đã bán: ${g.soldCount}</span>
-                        </div>
-                    </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 6px; white-space: pre-line;">${esc(g.description || 'Không có mô tả.')}</div>
-                    <div class="product-stats">
-                        <div>Giá: <b style="color: #e74c3c;">${(g.price || 0).toLocaleString('vi-VN')}đ</b></div>
-                        <div>
-                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openViewAccsModal(this.dataset.k)">📋 Chi tiết (${g.totalCount})</button>
-                            <button class="btn-main btn-dark btn-sm" data-k="${k}" onclick="openGroupEditModal(this.dataset.k)">✏️ Sửa/Thêm</button>
-                            <button class="btn-main btn-sm" style="background-color:#c0392b;" data-k="${k}" onclick="deleteGroup(this.dataset.k)">🗑️ Xóa</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-
-    function openViewAccsModal(groupKey) {
-        let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
-        if (!g) return;
-
-        document.getElementById("viewAccsTitle").textContent = `📋 Danh Sách Acc: ${g.title}`;
-        let container = document.getElementById("subAccsListContainer");
-
-        let html = '';
-        g.items.forEach((acc, idx) => {
-            let statusText = acc.buyer_username ? `<b style="color:#e74c3c;">Đã bán (@${esc(acc.buyer_username)})</b>` : `<b style="color:#27ae60;">Còn hàng</b>`;
-            let dateStr = acc.created_at ? new Date(acc.created_at).toLocaleDateString('vi-VN') : '';
-            html += `
-                <div class="sub-acc-item">
-                    <div><b>#${idx + 1}</b> - ${statusText} <span style="color:#888;">(${esc(dateStr)})</span></div>
-                    <button class="btn-main btn-sm" style="background:#c0392b; margin:0;" data-id="${esc(acc.id)}" onclick="deleteSingleAcc(this.dataset.id)">Xóa</button>
-                </div>
-            `;
-        });
-
-        container.innerHTML = html;
-        document.getElementById("viewAccsModal").style.display = "flex";
-    }
-
-    async function deleteSingleAcc(accId) {
-        if (!confirm("Bạn có chắc muốn xóa 1 acc này không?")) return;
-
-        const { error } = await _supabase.from('mmo_accounts').delete().eq('id', accId);
-        if (error) { alert("Lỗi khi xóa: " + error.message); return; }
-
-        alert("Xóa thành công!");
-        closeModal("viewAccsModal");
-        loadProductsList();
-    }
-
-    function openGroupEditModal(groupKey) {
-        let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
-        if (!g) return;
-
-        document.getElementById("editGroupKey").value = g.groupKey;
-        document.getElementById("editPlatform").value = g.platform || "Shopee";
-        document.getElementById("editTitle").value = g.title || "";
-        document.getElementById("editPrice").value = g.price || 0;
-        document.getElementById("editDesc").value = g.description || "";
-        document.getElementById("addMoreAccounts").value = "";
-
-        document.getElementById("editProductModal").style.display = "flex";
-    }
-
-    async function saveGroupEdit() {
-        let groupKey = document.getElementById("editGroupKey").value;
-        let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
-        if (!g) return;
-
-        let newPlatform = document.getElementById("editPlatform").value;
-        let newTitle = document.getElementById("editTitle").value.trim();
-        let newPrice = parseInt(document.getElementById("editPrice").value);
-        let newDesc = document.getElementById("editDesc").value.trim();
-        let moreAccsRaw = document.getElementById("addMoreAccounts").value.trim();
-
-        if (!newTitle || isNaN(newPrice)) { alert("Vui lòng nhập đầy đủ Tiêu đề và Giá tiền!"); return; }
-
-        let idsToUpdate = g.items.map(i => i.id);
-
-        const { error } = await _supabase
-            .from('mmo_accounts')
-            .update({ platform: newPlatform, title: newTitle, price: newPrice, description: newDesc })
-            .in('id', idsToUpdate);
-
-        if (error) { alert("Lỗi khi cập nhật nhóm: " + error.message); return; }
-
-        if (moreAccsRaw) {
-            let lines = moreAccsRaw.split('\n').map(l => l.trim()).filter(Boolean);
-            if (lines.length > 0) {
-                await _supabase.rpc('dang_ban_tai_khoan', {
-                    p_platform: newPlatform, p_price: newPrice, p_title: newTitle, p_description: newDesc, p_details_array: lines
-                });
-            }
-        }
-
-        alert("Cập nhật thông tin thành công!");
-        closeModal("editProductModal");
-        loadProductsList();
-    }
-
-    async function deleteGroup(groupKey) {
-        let g = cachedGroupedProducts.find(item => item.groupKey === groupKey);
-        if (!g) return;
-
-        if (!confirm(`Bạn có chắc muốn XÓA TOÀN BỘ ${g.totalCount} acc thuộc nhóm "${g.title}" này?`)) return;
-
-        let idsToDelete = g.items.map(i => i.id);
-        const { error } = await _supabase.from('mmo_accounts').delete().in('id', idsToDelete);
-
-        if (error) { alert("Lỗi khi xóa nhóm: " + error.message); return; }
-
-        alert("Xóa thành công nhóm sản phẩm!");
-        loadProductsList();
-    }
-
-    async function clearSoldAccounts() {
-        if (!confirm("Bạn có chắc chắn muốn XÓA TẤT CẢ các tài khoản ĐÃ BÁN khỏi cơ sở dữ liệu không? Action này không thể hoàn tác!")) return;
-
-        const { error } = await _supabase.from('mmo_accounts').delete().not('buyer_username', 'is', null);
-
-        if (error) { alert("Lỗi khi dọn dẹp tài khoản đã bán: " + error.message); return; }
-
-        alert("Đã xóa toàn bộ tài khoản đã bán thành công!");
-        loadProductsList();
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-
-    async function adjustUserBalance(specificUser = null, specificAmount = null) {
-        if (adjusting) return;
-        let target = (specificUser || document.getElementById("targetUsername").value.trim()).replace(/^@/, '');
-        let amount = specificAmount !== null ? specificAmount : parseInt(document.getElementById("balanceAmount").value);
-
-        if (!target || isNaN(amount) || amount === 0) { alert("Vui lòng nhập tên tài khoản và số tiền hợp lệ (khác 0)!"); return; }
-
-        if (!confirm(`${amount > 0 ? 'Cộng' : 'Trừ'} ${Math.abs(amount).toLocaleString('vi-VN')}đ cho @${target}?`)) return;
-
-        adjusting = true;
-        const btn = document.getElementById("btnAdjust");
-        if (btn) btn.disabled = true;
-
-        try {
-            const { data, error } = await _supabase.rpc('admin_cong_tien', {
-                p_target_username: target,
-                p_amount: amount
-            });
-
-            if (error || (data && !data.success)) {
-                alert("Lỗi cập nhật: " + (error?.message || data?.message || "Không xác định"));
-                return;
-            }
-
-            alert(`✅ Đã cập nhật số dư cho @${target}. Số dư mới: ${Number(data.new_balance).toLocaleString('vi-VN')}đ`);
-            if (document.getElementById("targetUsername")) document.getElementById("targetUsername").value = "";
-            if (document.getElementById("balanceAmount")) document.getElementById("balanceAmount").value = "";
-            
-            loadMemberList();
-            if (currentSelectedMember && currentSelectedMember.username === target) {
-                openMemberDetail(currentSelectedMember.username);
-            }
-        } catch (e) {
-            alert("Lỗi kết nối: " + e.message);
-        } finally {
-            adjusting = false;
-            if (btn) btn.disabled = false;
-        }
-    }
-
-    async function loadMemberList() {
-        const { data: users, error } = await _supabase.from('members').select('*').order('created_at', { ascending: false });
-        if (error) {
-            document.getElementById("memberListContainer").textContent = "Lỗi tải danh sách thành viên: " + error.message;
-            return;
-        }
-
-        const { data: purchases } = await _supabase.from('mmo_accounts').select('buyer_username, price').not('buyer_username', 'is', null);
-        let spendMap = {};
-        if (purchases) {
-            purchases.forEach(item => {
-                if (item.buyer_username) spendMap[item.buyer_username] = (spendMap[item.buyer_username] || 0) + (item.price || 0);
-            });
-        }
-
-        cachedMembers = (users || []).map(u => ({ ...u, totalSpend: spendMap[u.username] || 0 }));
-        renderMembers(cachedMembers);
-    }
-
-    function renderMembers(list) {
-        let container = document.getElementById("memberListContainer");
-        if (!list || list.length === 0) { container.innerHTML = "Chưa có thành viên nào."; return; }
-
-        let html = '';
-        list.forEach(u => {
-            let regTime = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : 'Không rõ';
-            let uEsc = esc(u.username);
-            html += `
-                <div class="member-card" data-u="${uEsc}" onclick="openMemberDetail(this.dataset.u)">
-                    <div class="member-top"><div class="member-user">👤 @${uEsc}</div></div>
-                    <div class="member-time">⏱️ Đăng ký: ${esc(regTime)}</div>
-                    <div class="member-stats">
-                        <div>Ví: <b style="color: #27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
-                        <div>Đã chi: <b style="color: #e74c3c;">${u.totalSpend.toLocaleString('vi-VN')}đ</b></div>
-                    </div>
-                    <div style="font-size: 11px; color: #2980b9; text-align: right; margin-top: 4px; font-weight: bold;">🔍 Xem Lịch Sử / Quản Lý</div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-
-    async function openMemberDetail(username) {
-        let u = cachedMembers.find(item => item.username === username);
-        if (!u) return;
-        currentSelectedMember = u;
-
-        document.getElementById("memberDetailTitle").textContent = `👤 @${u.username}`;
-        document.getElementById("memberDetailMeta").innerHTML = `
-            <div>Số dư hiện tại: <b style="color:#27ae60;">${(u.balance || 0).toLocaleString('vi-VN')}đ</b></div>
-            <div>Tổng tiền đã mua hàng: <b style="color:#e74c3c;">${(u.totalSpend || 0).toLocaleString('vi-VN')}đ</b></div>
-        `;
-
-        // Tải lịch sử giao dịch ví để xem
-        const { data: histories, error } = await _supabase
-            .from('deposit_history')
-            .select('*')
-            .eq('user_id', u.id)
-            .order('created_at', { ascending: false });
-
-        let historyContainer = document.getElementById("memberHistoryContainer");
-        if (error || !histories || histories.length === 0) {
-            historyContainer.innerHTML = "<div style='color:#888; text-align:center; font-size:11px; padding: 10px;'>Chưa có lịch sử giao dịch ví nào.</div>";
-        } else {
-            let hHtml = '';
-            histories.forEach(h => {
-                let timeStr = h.created_at ? new Date(h.created_at).toLocaleString('vi-VN') : '';
-                let amountColor = h.amount >= 0 ? 'color:#27ae60;' : 'color:#e74c3c;';
-                let amountStr = (h.amount >= 0 ? '+' : '') + Number(h.amount).toLocaleString('vi-VN') + 'đ';
-                hHtml += `
-                    <div class="history-item">
-                        <div>
-                            <div style="font-weight:bold; ${amountColor}">${amountStr} (${esc(h.type)})</div>
-                            <div style="color:#555;">${esc(h.note || 'Không có ghi chú')}</div>
-                            <div style="color:#888; font-size:10px;">${timeStr}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            historyContainer.innerHTML = hHtml;
-        }
-
-        document.getElementById("memberDetailModal").style.display = "flex";
-    }
-
-    function promptAdjustFromModal() {
-        if (!currentSelectedMember) return;
-        let input = prompt(`Nhập số tiền muốn cộng thêm cho @${currentSelectedMember.username} (Nhập số âm để trừ tiền):`);
-        if (input === null || input.trim() === "") return;
-        let amount = parseInt(input);
-        if (isNaN(amount) || amount === 0) { alert("Vui lòng nhập số tiền hợp lệ khác 0!"); return; }
-        adjustUserBalance(currentSelectedMember.username, amount);
-    }
-
-    async function deleteThisMember() {
-        if (!currentSelectedMember) return;
-        let username = currentSelectedMember.username;
-
-        // Bước 1: Cảnh báo quan trọng lần 1
-        let confirmFirst = confirm(`⚠️ CẢNH BÁO QUAN TRỌNG:\n\nBạn có thực sự muốn XÓA VĨNH VIỄN tài khoản @${username} khỏi hệ thống không?\n\nHành động này không thể hoàn tác!`);
-        if (!confirmFirst) return;
-
-        // Bước 2: Yêu cầu gõ lại username để xác nhận chắc chắn chống bấm nhầm
-        let typedUser = prompt(`Để xác nhận xóa, vui lòng nhập lại chính xác username của thành viên: @${username}`);
-        if (typedUser === null) return; // Người dùng bấm Hủy
-
-        if (typedUser.trim().replace(/^@/, '') !== username) {
-            alert("❌ Xác nhận thất bại! Username bạn nhập không khớp. Đã hủy thao tác xóa.");
-            return;
-        }
-
-        const { data, error } = await _supabase.rpc('admin_delete_member', {
-            p_target_username: username
-        });
-
-        if (error || (data && !data.success)) {
-            alert("Lỗi khi xóa thành viên: " + (error?.message || data?.message || "Không xác định"));
-            return;
-        }
-
-        alert(`✅ Đã xóa thành công tài khoản @${username}!`);
-        closeModal("memberDetailModal");
-        loadMemberList();
-    }
-
-    function filterMembers() {
-        let kw = document.getElementById("searchMemberInput").value.toLowerCase().trim();
-        renderMembers(cachedMembers.filter(u => u.username && u.username.toLowerCase().includes(kw)));
-    }
+    if (n) return editNote(n.dataset.n);
+    if (v) return openMemberDetail(v.dataset.u);
+    if (openMenu && !t.closest('.menu')) { openMenu = null; filterMembers(); }
+});
+document.addEventListener('change', e => { if (e.target.dataset.st) updateMemberField(e.target.dataset.st, { status: e.target.value }); });
+function editNote(un) {
+    const u = cachedMembers.find(m => m.username === un); if (!u) return;
+    const v = prompt("Ghi chú:", u.note || ""); if (v !== null) updateMemberField(un, { note: v.trim() });
+}
+function exportMembers() {
+    const q = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
+    const csv = 'Tên,Ngày đăng ký,Ví,Đã chi,Trạng thái,Ghi chú\n' + cachedMembers.map(u =>
+        [u.username, u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '', u.balance || 0, u.totalSpend, STT[stOf(u)][0], u.note || ''].map(q).join(',')).join('\n');
+    const l = document.createElement('a'); l.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv' })); l.download = 'thanh-vien.csv'; l.click();
+}
+async function openMemberDetail(username) {
+    let u = cachedMembers.find(i => i.username === username); if (!u) return;
+    currentSelectedMember = u;
+    $("memberDetailTitle").textContent = `👤 @${u.username}`;
+    $("memberDetailMeta").innerHTML = `<div>Số dư hiện tại: <b style="color:#27ae60">${fmt(u.balance)}</b></div><div>Tổng tiền đã mua hàng: <b style="color:#e74c3c">${fmt(u.totalSpend)}</b></div>`;
+    openModal("memberDetailModal");
+    const { data: hs, error } = await _supabase.from('deposit_history').select('*').eq('user_id', u.id).order('created_at', { ascending: false });
+    const hc = $("memberHistoryContainer");
+    if (error || !hs || !hs.length) { hc.innerHTML = "<div class='empty'>Chưa có lịch sử giao dịch ví nào.</div>"; return; }
+    hc.innerHTML = hs.map(h => `<div class="hist"><div style="font-weight:700;color:${h.amount >= 0 ? '#27ae60' : '#e74c3c'}">${(h.amount >= 0 ? '+' : '') + Number(h.amount).toLocaleString('vi-VN')}đ (${esc(h.type)})</div>
+        <div style="color:#555">${esc(h.note || 'Không có ghi chú')}</div><div style="color:#888;font-size:11px">${h.created_at ? new Date(h.created_at).toLocaleString('vi-VN') : ''}</div></div>`).join('');
+}
+function promptAdjustFromModal() {
+    if (!currentSelectedMember) return;
+    let input = prompt(`Nhập số tiền muốn cộng thêm cho @${currentSelectedMember.username} (Nhập số âm để trừ tiền):`);
+    if (input === null || input.trim() === "") return;
+    let amount = parseInt(input);
+    if (isNaN(amount) || amount === 0) { alert("Vui lòng nhập số tiền hợp lệ khác 0!"); return; }
+    adjustUserBalance(currentSelectedMember.username, amount);
+}
+async function deleteThisMember() {
+    if (!currentSelectedMember) return;
+    let username = currentSelectedMember.username;
+    if (!confirm(`⚠️ CẢNH BÁO QUAN TRỌNG:\n\nBạn có thực sự muốn XÓA VĨNH VIỄN tài khoản @${username} khỏi hệ thống không?\n\nHành động này không thể hoàn tác!`)) return;
+    let typed = prompt(`Để xác nhận xóa, vui lòng nhập lại chính xác username của thành viên: @${username}`);
+    if (typed === null) return;
+    if (typed.trim().replace(/^@/, '') !== username) { alert("❌ Xác nhận thất bại! Username bạn nhập không khớp. Đã hủy thao tác xóa."); return; }
+    const { data, error } = await _supabase.rpc('admin_delete_member', { p_target_username: username });
+    if (error || (data && !data.success)) { alert("Lỗi khi xóa thành viên: " + (error?.message || data?.message || "Không xác định")); return; }
+    alert(`✅ Đã xóa thành công tài khoản @${username}!`);
+    closeModal("memberDetailModal"); loadMemberList();
+}
 </script>
-
 </body>
 </html>
